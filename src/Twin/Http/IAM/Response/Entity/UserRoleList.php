@@ -4,22 +4,18 @@ declare(strict_types=1);
 
 namespace Twin\Http\IAM\Response\Entity;
 
-use Countable;
 use Generator;
 use LogicException;
 use OutOfBoundsException;
-use ArrayAccess;
-use IteratorAggregate;
-use Twin\Mapper;
+use Twin\Collection;
+use Twin\Entity;
 
-final class UserRoleList implements Countable, IteratorAggregate, ArrayAccess
+final class UserRoleList extends Entity implements Collection
 {
-    use Mapper;
-
     /**
      * @var UserRole[]
      */
-    private array $roles;
+    protected array $roles;
 
     public function __construct(array $roles)
     {
@@ -29,7 +25,7 @@ final class UserRoleList implements Countable, IteratorAggregate, ArrayAccess
     /**
      * @return UserRole[]
      */
-    public function toArray(): array
+    public function toArray(bool $ignoreNulls = false): array
     {
         return $this->roles;
     }
@@ -37,11 +33,11 @@ final class UserRoleList implements Countable, IteratorAggregate, ArrayAccess
     /**
      * @return array[]
      */
-    public function toNestedArray(): array
+    public function toNestedArray(bool $ignoreNulls = false): array
     {
         $values = [];
         foreach ($this->roles as $role) {
-            $values[] = $role->toNestedArray();
+            $values[] = $role->toNestedArray($ignoreNulls);
         }
         return $values;
     }

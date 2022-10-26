@@ -5,17 +5,25 @@ declare(strict_types=1);
 namespace Twin\Http;
 
 use Throwable;
+use Twin\Entity;
 
-abstract class Response
+abstract class Response extends Entity
 {
-    public readonly int $statusCode;
-    public readonly array $headers;
-    public readonly string $rawBody;
-    public readonly string $error;
-    public readonly mixed $errorDetails;
-    public readonly ?Throwable $exception;
+    public int $statusCode;
+    public array $headers;
+    public string $rawBody;
+    public string $error;
+    public mixed $errorDetails;
+    public ?Throwable $exception;
 
-    protected array $properties = [];
+    protected array $__properties = [
+        'statusCode',
+        'headers',
+        'rawBody',
+        'error',
+        'errorDetails',
+        'exception'
+    ];
 
     public function __construct(
         int $statusCode,
@@ -31,13 +39,5 @@ abstract class Response
         $this->error = $error;
         $this->errorDetails = $errorDetails;
         $this->exception = $exception;
-        $this->properties = [
-            'statusCode',
-            'headers',
-            'rawBody',
-            'error',
-            'errorDetails',
-            'exception'
-        ];
     }
 }

@@ -1,14 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Twin\Http\IAM\Response\Entity;
 
-use Twin\Mapper;
+use Twin\Entity;
 
-final class UserSettings
+final class UserSettings extends Entity
 {
-    use Mapper;
-
-    public readonly SettingsMap $settings;
+    public SettingsMap $settings;
 
     public function __construct(array $properties)
     {

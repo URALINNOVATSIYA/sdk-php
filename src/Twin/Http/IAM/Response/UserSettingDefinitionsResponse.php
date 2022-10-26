@@ -1,17 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Twin\Http\IAM\Response;
 
 use Throwable;
 use Twin\Http\IAM\Response\Entity\SettingsMap;
 use Twin\Http\Response;
-use Twin\Mapper;
 
 final class UserSettingDefinitionsResponse extends Response
 {
-    use Mapper;
-
-    public readonly ?SettingsMap $body;
+    public ?SettingsMap $body;
 
     public function __construct(
         int $statusCode,

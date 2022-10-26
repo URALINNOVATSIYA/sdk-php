@@ -1,27 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Twin\Http\Response\Entity;
 
 use DateTimeImmutable;
-use Twin\Mapper;
+use Twin\Entity;
 
-class FileMetadata
+class FileMetadata extends Entity
 {
-    use Mapper;
-
-    public readonly string $id;
-    public readonly bool $isPrivate;
-    public readonly DateTimeImmutable $createdAt;
-    public readonly string $contentType;
-    public readonly string $name;
-    public readonly string $baseName;
-    public readonly string $extension;
-    public readonly string $suggestedExtension;
-    public readonly string $path;
-    public readonly int $size;
-    public readonly ?string $url;
-    public readonly ?string $downloadLink;
-    public readonly ?int $ownerId;
+    public string $id;
+    public bool $isPrivate;
+    public DateTimeImmutable $createdAt;
+    public string $contentType;
+    public string $name;
+    public string $baseName;
+    public string $extension;
+    public string $suggestedExtension;
+    public string $path;
+    public int $size;
+    public ?string $url;
+    public ?string $downloadLink;
+    public ?int $ownerId;
 
     public function __construct(array $properties)
     {

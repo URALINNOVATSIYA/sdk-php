@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Twin\Http;
 
+use Psr\Http\Message\StreamInterface;
 use Throwable;
 use OutOfBoundsException;
 use GuzzleHttp\Promise\FulfilledPromise;
@@ -246,19 +247,6 @@ abstract class HttpClient
         return $headers;
     }
 
-    private function parseResponse(string $response, array $responseHeaders): mixed
-    {
-        $contentType = $responseHeaders['content-type'] ?? '';
-        if ($contentType === '') {
-            return $response;
-        }
-        $contentType = explode(';', $contentType)[0];
-        if ($contentType === 'application/json' || str_ends_with($contentType, 'json')) {
-            $response = json_decode($response, true) ?? $response;
-        }
-        return $response;
-    }
-
     private function getRequestOptions(string $method, string $url, array $params, array $headers = []): array
     {
         $this->addDefaultContentTypeHeader($headers);
@@ -266,6 +254,9 @@ abstract class HttpClient
         $paramsKey = $this->getKeyOfParamsOption($method, $headers);
         if ($method === 'GET') {
             $params = array_merge($params, $this->extractQueryParams($url));
+        }
+        if ($paramsKey === RequestOptions::MULTIPART) {
+            unset($headers['Content-Type']);
         }
 
         return  [
@@ -320,8 +311,7 @@ abstract class HttpClient
     {
         $responseStatusCode = $response->getStatusCode();
         $responseHeaders = $this->normalizeResponseHeaders($response);
-        $rawResponse = $response->getBody()->getContents();
-        $response = $this->parseResponse($rawResponse, $responseHeaders);
+        [$response, $rawResponse] = $this->parseResponse($response->getBody(), $responseHeaders);
 
         if ($responseStatusCode >= 400) {
             if (is_array($response)) {
@@ -365,6 +355,22 @@ abstract class HttpClient
                 $e
             );
         }
+    }
+
+    private function parseResponse(StreamInterface $response, array $responseHeaders): array
+    {
+        if (str_starts_with($responseHeaders['content-disposition'] ?? '', 'attachment')) {
+            return [$response, ''];
+        }
+        $response = $response->getContents();
+        $contentType = $responseHeaders['content-type'] ?? '';
+        if ($contentType !== '') {
+            $contentType = explode(';', $contentType)[0];
+            if ($contentType === 'application/json' || str_ends_with($contentType, 'json')) {
+                return [json_decode($response, true) ?? $response, $response];
+            }
+        }
+        return [$response, $response];
     }
 
     private function throwException(string $error, int $statusCode): void

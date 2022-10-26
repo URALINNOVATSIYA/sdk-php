@@ -7,13 +7,10 @@ namespace Twin\Http\IAM\Response;
 use Throwable;
 use Twin\Http\IAM\Response\Entity\AuthenticationTokenData;
 use Twin\Http\Response;
-use Twin\Mapper;
 
 final class LoginResponse extends Response
 {
-    use Mapper;
-
-    public readonly ?AuthenticationTokenData $body;
+    public ?AuthenticationTokenData $body;
 
     public function __construct(
         int $statusCode,

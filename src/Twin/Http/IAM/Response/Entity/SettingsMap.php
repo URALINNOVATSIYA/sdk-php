@@ -4,22 +4,18 @@ declare(strict_types=1);
 
 namespace Twin\Http\IAM\Response\Entity;
 
-use ArrayAccess;
-use Countable;
 use Generator;
-use IteratorAggregate;
 use LogicException;
 use OutOfBoundsException;
-use Twin\Mapper;
+use Twin\Collection;
+use Twin\Entity;
 
-final class SettingsMap implements Countable, IteratorAggregate, ArrayAccess
+final class SettingsMap extends Entity implements Collection
 {
-    use Mapper;
-
     /**
      * @var array<string, string|int|float|bool>
      */
-    private array $settings;
+    protected array $settings;
 
     public function __construct(array $settings)
     {
@@ -29,7 +25,7 @@ final class SettingsMap implements Countable, IteratorAggregate, ArrayAccess
     /**
      * @return array<string, string|int|float|bool>
      */
-    public function toArray(): array
+    public function toArray(bool $ignoreNulls = false): array
     {
         return $this->settings;
     }
@@ -37,7 +33,7 @@ final class SettingsMap implements Countable, IteratorAggregate, ArrayAccess
     /**
      * @return array<string, string|int|float|bool>
      */
-    public function toNestedArray(): array
+    public function toNestedArray(bool $ignoreNulls = false): array
     {
         return $this->settings;
     }

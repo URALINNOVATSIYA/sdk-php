@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace Twin\Http\IAM\Response\Entity;
 
-use Twin\Mapper;
+use Twin\Entity;
 
-final class UserRole
+final class UserRole extends Entity
 {
-    use Mapper;
-
-    public readonly string $name;
-    public readonly ?int $companyId;
+    public string $name;
+    public ?int $companyId;
 
     public function __construct(array $properties)
     {

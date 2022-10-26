@@ -1,23 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Twin\Http\IAM\Response\Entity;
 
-use Twin\Mapper;
+use Twin\Entity;
 
-final class UserData
+final class UserData extends Entity
 {
-    use Mapper;
-
-    public readonly int $id;
-    public readonly int $companyId;
-    public readonly string $firstName;
-    public readonly string $lastName;
-    public readonly string $middleName;
-    public readonly string $email;
-    public readonly ?string $phone;
-    public readonly UserRoleList $roles;
-    public readonly SettingsMap $settings;
-    public readonly ?AvatarMetadata $avatar;
+    public int $id;
+    public int $companyId;
+    public string $firstName;
+    public string $lastName;
+    public string $middleName;
+    public string $email;
+    public ?string $phone;
+    public UserRoleList $roles;
+    public SettingsMap $settings;
+    public ?AvatarMetadata $avatar;
 
     public function __construct(array $properties)
     {

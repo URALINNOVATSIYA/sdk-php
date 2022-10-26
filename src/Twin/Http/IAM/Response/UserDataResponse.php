@@ -7,13 +7,10 @@ namespace Twin\Http\IAM\Response;
 use Throwable;
 use Twin\Http\IAM\Response\Entity\UserData;
 use Twin\Http\Response;
-use Twin\Mapper;
 
 final class UserDataResponse extends Response
 {
-    use Mapper;
-
-    public readonly ?UserData $body;
+    public ?UserData $body;
 
     public function __construct(
         int $statusCode,

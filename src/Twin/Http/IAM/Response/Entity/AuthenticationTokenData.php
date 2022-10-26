@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace Twin\Http\IAM\Response\Entity;
 
-use Twin\Mapper;
+use Twin\Entity;
 
-final class AuthenticationTokenData
+final class AuthenticationTokenData extends Entity
 {
-    use Mapper;
-
-    public readonly string $authToken;
-    public readonly string $refreshToken;
+    public string $authToken;
+    public string $refreshToken;
 
     public function __construct(array $properties)
     {
