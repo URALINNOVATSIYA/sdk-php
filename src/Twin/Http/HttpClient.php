@@ -22,9 +22,6 @@ use Twin\Http\Exception\NotFound;
 use Twin\Http\Exception\Unauthorized;
 use Twin\Http\Exception\UnprocessableEntity;
 
-/**
- * @template T of Response
- */
 abstract class HttpClient
 {
     /**
@@ -83,6 +80,7 @@ abstract class HttpClient
     }
 
     /**
+     * @template T of Response
      * @param string $method
      * @param string $url
      * @param class-string<T> $responseClass
@@ -101,7 +99,7 @@ abstract class HttpClient
         array $params = [],
         array $headers = [],
         array $options = []
-    ) {
+    ): Response|PromiseInterface {
         if ($this->async) {
             return $this->requestAsync($method, $url, $responseClass, $requireAuthorization, $params, $headers, $options);
         }
@@ -109,6 +107,7 @@ abstract class HttpClient
     }
 
     /**
+     * @template T of Response
      * @param string $method
      * @param string $url
      * @param class-string<T> $responseClass
@@ -127,7 +126,7 @@ abstract class HttpClient
         array $params = [],
         array $headers = [],
         array $options = []
-    ) {
+    ): Response {
         $url = $this->prepareUrl($url);
         $options = array_merge($this->getRequestOptions($method, $url, $params, $headers), $options);
 
@@ -160,6 +159,18 @@ abstract class HttpClient
         }
     }
 
+    /**
+     * @template T of Response
+     * @param string $method
+     * @param string $url
+     * @param class-string<T> $responseClass
+     * @param bool $requireAuthorization
+     * @param array $params
+     * @param array $headers
+     * @param array $options
+     * @return PromiseInterface
+     * @throws Throwable
+     */
     protected function requestAsync(
         string $method,
         string $url,
@@ -216,6 +227,14 @@ abstract class HttpClient
             ->then($onFulfilled, $onReject);
     }
 
+    /**
+     * @template T of Response
+     * @param array $headers
+     * @param class-string<T> $responseClass
+     * @param string $error
+     * @return T|null
+     * @throws Throwable
+     */
     protected function addAuthToken(array &$headers, string $responseClass, string $error): ?Response
     {
         try {
@@ -302,6 +321,13 @@ abstract class HttpClient
         return $params;
     }
 
+    /**
+     * @template T of Response
+     * @param class-string<T> $responseClass
+     * @param Throwable $e
+     * @return T
+     * @throws Throwable
+     */
     private function processRequestException(string $responseClass, Throwable $e): Response
     {
         if ($this->throwExceptionOnRequestError) {
@@ -310,6 +336,12 @@ abstract class HttpClient
         return new $responseClass(0, [], '', null, '', [], $e);
     }
 
+    /**
+     * @template T of Response
+     * @param class-string<T> $responseClass
+     * @param ResponseInterface $response
+     * @return T|null
+     */
     private function processResponse(string $responseClass, ResponseInterface $response): ?Response
     {
         $responseStatusCode = $response->getStatusCode();

@@ -16,6 +16,9 @@ abstract class Response extends Entity
     public mixed $errorDetails;
     public ?Throwable $exception;
 
+    /**
+     * @var string[]
+     */
     protected array $__properties = [
         'statusCode',
         'headers',
