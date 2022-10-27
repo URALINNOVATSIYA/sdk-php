@@ -2,15 +2,20 @@
 
 namespace Twin;
 
-use InvalidArgumentException;
 use TypeError;
+use InvalidArgumentException;
 
-abstract class Entity implements Arrayable
+abstract class Entity
 {
     /**
      * @var string[]
      */
     protected array $__properties = [];
+
+    public function propertyExists(string $property): bool
+    {
+        return in_array($property, $this->__properties);
+    }
 
     public function toArray(bool $ignoreNulls = false): array
     {
@@ -35,21 +40,16 @@ abstract class Entity implements Arrayable
         if ($ignoreNulls) {
             foreach ($this->__properties as $property) {
                 if (null !== $value = $this->{$property}) {
-                    $values[$property] = $value instanceof Arrayable ? $value->toNestedArray(true) : $value;
+                    $values[$property] = $value instanceof Entity ? $value->toNestedArray(true) : $value;
                 }
             }
         } else {
             foreach ($this->__properties as $property) {
                 $value = $this->{$property};
-                $values[$property] = $value instanceof Arrayable ? $value->toNestedArray() : $value;
+                $values[$property] = $value instanceof Entity ? $value->toNestedArray() : $value;
             }
         }
         return $values;
-    }
-
-    public function propertyExists(string $property): bool
-    {
-        return in_array($property, $this->__properties);
     }
 
     protected function assignListProperty(string $property, array $values, string $type): void
@@ -83,7 +83,49 @@ abstract class Entity implements Arrayable
         $this->assignProperty($property, $typedValues);
     }
 
-    private function getTypeCaster(string $type, string $errorPrefix): callable
+    protected function assignProperties(array $values, array $propertyMap, bool $ignoreNonExistingValues = false): void
+    {
+        foreach ($propertyMap as $property => $key) {
+            if (is_array($key)) {
+                $castTo = $key['castTo'] ?? null;
+                $key = $key['key'] ?? null;
+            } else {
+                $castTo = null;
+            }
+            if (is_int($property)) {
+                if ($key === null) {
+                    continue;
+                }
+                $property = $key;
+            } else if ($key === null) {
+                $key = $property;
+            }
+            if ($ignoreNonExistingValues && !key_exists($key, $values)) {
+                continue;
+            }
+            $this->assignProperty($property, $values[$key] ?? null, $castTo);
+        }
+    }
+
+    protected function assignProperty(string $property, mixed $value, ?string $castTo = null): void
+    {
+        if ($castTo) {
+            try {
+                $this->{$property} = $this->getTypeCaster($castTo)($value, $property);
+            } catch (TypeError $e) {
+                throw new InvalidArgumentException($this->formErrorText($e->getMessage()));
+            }
+        } else {
+            try {
+                $this->{$property} = $value;
+            } catch (TypeError $e) {
+                throw new InvalidArgumentException($this->formErrorText($this->formTypeErrorMessage($e, $castTo)));
+            }
+        }
+        $this->__properties[] = $property;
+    }
+
+    private function getTypeCaster(string $type, string $errorPrefix = ''): callable
     {
         $nullable = false;
         $types = explode('|', $type);
@@ -91,6 +133,8 @@ abstract class Entity implements Arrayable
             if ($t[0] === '?') {
                 $nullable = true;
                 $t = ltrim($t, '?');
+            } else if ($t === 'null') {
+                $nullable = true;
             }
         }
         $requiredType = implode(', ', $types) . ($nullable ? ' or null' : '');
@@ -100,7 +144,7 @@ abstract class Entity implements Arrayable
                 if ($nullable) {
                     return null;
                 }
-                $this->throwInvalidItemError($errorPrefix, $value, $key, $requiredType);
+                $this->throwInvalidTypeCastingError($errorPrefix, $value, $key, $requiredType);
             }
             foreach ($types as $type) {
                 switch ($type) {
@@ -124,6 +168,11 @@ abstract class Entity implements Arrayable
                             return $value;
                         }
                         break;
+                    case 'scalar':
+                        if (is_scalar($value)) {
+                            return $value;
+                        }
+                        break;
                     default:
                         try {
                             return new $type($value);
@@ -132,11 +181,11 @@ abstract class Entity implements Arrayable
                         }
                 }
             }
-            $this->throwInvalidItemError($errorPrefix, $value, $key, $requiredType);
+            $this->throwInvalidTypeCastingError($errorPrefix, $value, $key, $requiredType);
         };
     }
 
-    private function throwInvalidItemError(string $prefix, mixed $value, mixed $key, string $requiredType): void
+    private function throwInvalidTypeCastingError(string $prefix, mixed $value, mixed $key, string $requiredType): void
     {
         $actualType = strtolower(gettype($value));
         if ($prefix === 'element') {
@@ -146,48 +195,7 @@ abstract class Entity implements Arrayable
                 $key = "with key \"$key\"";
             }
         }
-        throw new TypeError("$prefix $key must be of type $requiredType, $actualType given");
-    }
-
-    protected function assignProperty(string $property, mixed $value, ?string $type = null): void
-    {
-        try {
-            if ($type) {
-                if ($type[0] === '?') {
-                    $nullable = true;
-                    $type = ltrim($type, '?');
-                } else {
-                    $nullable = false;
-                }
-                $this->{$property} = $nullable && $value === null ? null : new $type($value);
-            } else {
-                $this->{$property} = $value;
-            }
-        } catch (TypeError $e) {
-            throw new InvalidArgumentException($this->formErrorText($this->formTypeErrorMessage($e, $type)));
-        }
-        $this->__properties[] = $property;
-    }
-
-    protected function assignProperties(array $values, array $propertyMap, bool $ignoreNonExistingValues = false): void
-    {
-        foreach ($propertyMap as $property => $key) {
-            if (is_array($key)) {
-                $type = $key['type'] ?? null;
-                $key = $key['key'] ?? null;
-            } else {
-                $type = null;
-            }
-            if (is_int($property)) {
-                $property = $key;
-            } else if ($key === null) {
-                $key = $property;
-            }
-            if ($ignoreNonExistingValues && !key_exists($key, $values)) {
-                continue;
-            }
-            $this->assignProperty($property, $values[$key] ?? null, $type);
-        }
+        throw new TypeError(ltrim("$prefix $key must be of type $requiredType, $actualType given"));
     }
 
     private function formErrorText(string $validationError): string
@@ -226,7 +234,7 @@ abstract class Entity implements Arrayable
 
     private function typeToText(string $type): string
     {
-        $class = substr($type, strrpos($type, '\\') + 1);
+        $class = substr($type, (int)strrpos($type, '\\') + 1);
         $words = preg_split('/(?=\p{Lu})/u', $class, -1, PREG_SPLIT_NO_EMPTY);
         $words = array_map('lcfirst', $words);
         return implode(' ', $words);

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Twin\Http\IAM\Response\Entity;
+namespace Twin\Http\IAM\V1\Response\Entity;
 
 use DateTimeImmutable;
 use Twin\Entity;
@@ -35,9 +35,9 @@ final class UserListItem extends Entity
             'middleName',
             'email',
             'phone',
-            'roles' => ['type' => '?' . UserRoleList::class],
-            'settings' => ['type' => '?' . SettingsMap::class],
-            'blockedAt' => ['type' => '?' . DateTimeImmutable::class],
+            'roles' => ['castTo' => '?' . UserRoleList::class],
+            'settings' => ['castTo' => '?' . SettingsMap::class],
+            'blockedAt' => ['castTo' => '?' . DateTimeImmutable::class],
             'online',
             'resellerId',
             'resellerName'

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Twin\Http\IAM\Response\Entity;
+namespace Twin\Http\IAM\V1\Response\Entity;
 
 use Twin\Entity;
 
@@ -15,7 +15,7 @@ final class UserCollection extends Entity
     {
         $this->assignProperties($properties, [
             'count',
-            'items' => ['type' => '?' . UserList::class]
+            'items' => ['castTo' => '?' . UserList::class]
         ]);
     }
 }

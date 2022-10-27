@@ -28,7 +28,7 @@ class FileMetadata extends Entity
         $this->assignProperties($properties, [
             'id',
             'isPrivate',
-            'createdAt' => ['type' => DateTimeImmutable::class],
+            'createdAt' => ['castTo' => DateTimeImmutable::class],
             'contentType',
             'name',
             'baseName',

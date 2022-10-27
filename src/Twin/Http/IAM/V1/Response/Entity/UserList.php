@@ -1,6 +1,6 @@
 <?php
 
-namespace Twin\Http\IAM\Response\Entity;
+namespace Twin\Http\IAM\V1\Response\Entity;
 
 use Generator;
 use LogicException;
@@ -41,7 +41,7 @@ final class UserList extends Entity implements Collection
     }
 
     /**
-     * @psalm-return UserListItem[]
+     * @psalm-return Generator<int, UserListItem>
      */
     public function getIterator(): Generator
     {

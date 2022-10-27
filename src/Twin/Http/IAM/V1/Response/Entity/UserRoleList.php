@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Twin\Http\Response\Entity;
+namespace Twin\Http\IAM\V1\Response\Entity;
 
 use Generator;
 use LogicException;
@@ -10,24 +10,24 @@ use OutOfBoundsException;
 use Twin\Collection;
 use Twin\Entity;
 
-class FileMetadataList extends Entity implements Collection
+final class UserRoleList extends Entity implements Collection
 {
     /**
-     * @var FileMetadata[]
+     * @var UserRole[]
      */
-    protected array $files;
+    protected array $roles;
 
-    public function __construct(array $files)
+    public function __construct(array $roles)
     {
-        $this->assignListProperty('files', $files, FileMetadata::class);
+        $this->assignListProperty('roles', $roles, UserRole::class);
     }
 
     /**
-     * @return FileMetadata[]
+     * @return UserRole[]
      */
     public function toArray(bool $ignoreNulls = false): array
     {
-        return $this->files;
+        return $this->roles;
     }
 
     /**
@@ -36,23 +36,23 @@ class FileMetadataList extends Entity implements Collection
     public function toNestedArray(bool $ignoreNulls = false): array
     {
         $values = [];
-        foreach ($this->files as $file) {
-            $values[] = $file->toNestedArray($ignoreNulls);
+        foreach ($this->roles as $role) {
+            $values[] = $role->toNestedArray($ignoreNulls);
         }
         return $values;
     }
 
     /**
-     * @psalm-return Generator<int, FileMetadata>
+     * @psalm-return Generator<int, UserRole>
      */
     public function getIterator(): Generator
     {
-        yield from $this->files;
+        yield from $this->roles;
     }
 
     public function count(): int
     {
-        return count($this->files);
+        return count($this->roles);
     }
 
     public function offsetExists(mixed $offset): bool
@@ -60,7 +60,7 @@ class FileMetadataList extends Entity implements Collection
         return isset($this->roles[$offset]);
     }
 
-    public function offsetGet(mixed $offset): FileMetadata
+    public function offsetGet(mixed $offset): UserRole
     {
         if (!isset($this->roles[$offset])) {
             throw new OutOfBoundsException('Array index out of bounds.');
@@ -70,11 +70,11 @@ class FileMetadataList extends Entity implements Collection
 
     public function offsetSet(mixed $offset, mixed $value): void
     {
-        throw new LogicException('File metadata list is read only.');
+        throw new LogicException('User role list is read only.');
     }
 
     public function offsetUnset(mixed $offset): void
     {
-        throw new LogicException('File metadata list is read only.');
+        throw new LogicException('User role list is read only.');
     }
 }

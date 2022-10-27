@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Twin\Http;
 
-use Psr\Http\Message\StreamInterface;
 use Throwable;
+use GuzzleHttp\ClientInterface;
+use Psr\Http\Message\StreamInterface;
 use OutOfBoundsException;
 use GuzzleHttp\Promise\FulfilledPromise;
 use Psr\Http\Message\ResponseInterface;
@@ -21,6 +22,9 @@ use Twin\Http\Exception\NotFound;
 use Twin\Http\Exception\Unauthorized;
 use Twin\Http\Exception\UnprocessableEntity;
 
+/**
+ * @template T of Response
+ */
 abstract class HttpClient
 {
     /**
@@ -51,15 +55,13 @@ abstract class HttpClient
 
     private Authenticator $authenticator;
 
-    /**
-     * @var Client|null Guzzle instance
-     */
-    private ?Client $client = null;
+    private ClientInterface $client;
 
-    public function __construct(string $apiBaseUrl, Authenticator $authenticator)
+    public function __construct(string $apiBaseUrl, Authenticator $authenticator, ClientInterface $client = null)
     {
         $this->apiBaseUrl = $apiBaseUrl;
         $this->authenticator = $authenticator;
+        $this->client = $client ?? new Client();
     }
 
     public function async(bool $flag): static
@@ -80,6 +82,17 @@ abstract class HttpClient
         return $this;
     }
 
+    /**
+     * @param string $method
+     * @param string $url
+     * @param class-string<T> $responseClass
+     * @param bool $requireAuthorization
+     * @param array $params
+     * @param array $headers
+     * @param array $options
+     * @return T|PromiseInterface
+     * @throws Throwable
+     */
     protected function request(
         string $method,
         string $url,
@@ -88,7 +101,7 @@ abstract class HttpClient
         array $params = [],
         array $headers = [],
         array $options = []
-    ): Response|PromiseInterface {
+    ) {
         if ($this->async) {
             return $this->requestAsync($method, $url, $responseClass, $requireAuthorization, $params, $headers, $options);
         }
@@ -96,7 +109,6 @@ abstract class HttpClient
     }
 
     /**
-     * @template T of Response
      * @param string $method
      * @param string $url
      * @param class-string<T> $responseClass
@@ -115,7 +127,7 @@ abstract class HttpClient
         array $params = [],
         array $headers = [],
         array $options = []
-    ): Response {
+    ) {
         $url = $this->prepareUrl($url);
         $options = array_merge($this->getRequestOptions($method, $url, $params, $headers), $options);
 
@@ -127,11 +139,10 @@ abstract class HttpClient
                 return $response;
         }
 
-        $client = $this->getClient();
         while (true) {
 
             try {
-                $response = $client->request($method, $url, $options);
+                $response = $this->client->request($method, $url, $options);
             } catch (Throwable $e) {
                 return $this->processRequestException($responseClass, $e);
             }
@@ -196,7 +207,7 @@ abstract class HttpClient
             return new FulfilledPromise($response);
         }
 
-        return $this->getClient()
+        return $this->client
             ->requestAsync(
                 $method,
                 $this->prepareUrl($url),
@@ -216,14 +227,6 @@ abstract class HttpClient
             return new $responseClass(0, [], '', null, $error, [], $e);
         }
         return null;
-    }
-
-    private function getClient(): Client
-    {
-        if ($this->client) {
-            return $this->client;
-        }
-        return $this->client = new Client();
     }
 
     private function prepareUrl(string $url): string

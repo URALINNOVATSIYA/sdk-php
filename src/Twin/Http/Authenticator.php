@@ -4,35 +4,32 @@ declare(strict_types=1);
 
 namespace Twin\Http;
 
-use Throwable;
 use DateTimeImmutable;
-use DateTimeInterface;
-use Lcobucci\JWT\Encoding\JoseEncoder;
-use Lcobucci\JWT\Token\Parser;
-use Lcobucci\JWT\Token\RegisteredClaims;
-use Lcobucci\JWT\UnencryptedToken;
+use GuzzleHttp\ClientInterface;
 use Twin\Http\Exception\InvalidResponse;
-use Twin\Http\IAM\Response\LoginResponse;
+use Twin\Http\IAM\V1\Response\LoginResponse;
 
-class Authenticator extends HttpClient
+final class Authenticator extends HttpClient
 {
     private string $email = '';
     private string $password = '';
     private string $authToken = '';
     private string $refreshToken = '';
-    private ?DateTimeInterface $tokenExpiredAt = null;
+    private ?DateTimeImmutable $tokenExpiredAt = null;
     private int $ttl = 0;
     private int $companyId = 0;
     private array $extra = [];
+    private mixed $tokenRefreshCallback = null;
 
     public static function fromBasic(
         string $email,
         string $password,
         int $ttl = 3600,
         int $companyId = 0,
-        array $extra = []
-    ): static {
-        $authenticator = new static();
+        array $extra = [],
+        ClientInterface $client = null
+    ): self {
+        $authenticator = new self($client);
         $authenticator->email = $email;
         $authenticator->password = $password;
         $authenticator->ttl = $ttl;
@@ -41,9 +38,13 @@ class Authenticator extends HttpClient
         return $authenticator;
     }
 
-    public static function fromJwt(string $authToken, string $refreshToken, int $ttl = 3600): static
-    {
-        $authenticator = new static();
+    public static function fromJwt(
+        string $authToken,
+        string $refreshToken,
+        int $ttl = 3600,
+        ClientInterface $client = null
+    ): self {
+        $authenticator = new self($client);
         $authenticator->authToken = $authToken;
         $authenticator->refreshToken = $refreshToken;
         $authenticator->ttl = $ttl;
@@ -51,28 +52,41 @@ class Authenticator extends HttpClient
         return $authenticator;
     }
 
-    final public function __construct()
+    private function __construct(?ClientInterface $client)
     {
-        parent::__construct('https://iam.twin24.ai/api/v1/auth', $this);
-        $this->throwExceptionOnErrorResponse = true;
+        parent::__construct('https://iam.twin24.ai/api/v1/auth', $this, $client);
+        $this->throwExceptionOnRequestError(true);
+        $this->throwExceptionOnErrorResponse(true);
+    }
+
+    public function onTokenRefresh(callable $callback): void
+    {
+        $this->tokenRefreshCallback = $callback;
+    }
+
+    public function getTokenExpiration(): ?DateTimeImmutable
+    {
+        return $this->tokenExpiredAt;
+    }
+
+    public function getRefreshToken(bool $refresh = false): string
+    {
+        $this->requestAuthToken($refresh);
+        return $this->refreshToken;
     }
 
     public function getAuthToken(bool $refresh = false): string
     {
-        if ($this->authToken === '') {
-            $this->requestAuthToken();
-        } else if ($refresh || $this->tokenExpiredAt <= new DateTimeImmutable()) {
-            $this->refresh();
-        }
+        $this->requestAuthToken($refresh);
         return $this->authToken;
     }
 
-    private function requestAuthToken(): void
+    private function requestAuthToken(bool $refresh): void
     {
-        if ($this->refreshToken !== '') {
-            $this->refresh();
-        } else {
+        if ($this->authToken === '' || $this->refreshToken === '') {
             $this->login();
+        } else if ($refresh || $this->tokenExpiredAt <= new DateTimeImmutable()) {
+            $this->refresh();
         }
     }
 
@@ -117,16 +131,37 @@ class Authenticator extends HttpClient
         $this->refreshToken = $response->body->refreshToken;
         $this->authToken = $response->body->authToken;
         $this->parseAuthToken();
+        if ($this->tokenRefreshCallback) {
+            ($this->tokenRefreshCallback)($this->authToken, $this->refreshToken, $this->tokenExpiredAt);
+        }
     }
 
     private function parseAuthToken(): void
     {
-        try {
-            /** @var UnencryptedToken $parsedToken */
-            $parsedToken = (new Parser(new JoseEncoder()))->parse($this->authToken);
-            $this->tokenExpiredAt = $parsedToken->claims()->get(RegisteredClaims::EXPIRATION_TIME);
-        } catch (Throwable $e) {
-            throw new InvalidResponse('Invalid auth token.', 0, $e);
+        if ($this->authToken === '') {
+            $this->tokenExpiredAt = new DateTimeImmutable();
+            return;
         }
+        $data = explode('.', $this->authToken);
+        if (count($data) === 3) {
+            $data = $data[1];
+            $data = strtr($data, '-_', '+/');
+            $data = base64_decode($data, true);
+            if ($data !== false) {
+                $data = json_decode($data, true);
+                if (is_array($data) && isset($data['exp'])) {
+                    $exp = $data['exp'];
+                    if (is_numeric($exp)) {
+                        $exp = number_format((float)$exp, 6, '.', '');
+                        $exp = DateTimeImmutable::createFromFormat('U.u', $exp);
+                        if ($exp) {
+                            $this->tokenExpiredAt = $exp;
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+        throw new InvalidResponse('Invalid auth token.');
     }
 }

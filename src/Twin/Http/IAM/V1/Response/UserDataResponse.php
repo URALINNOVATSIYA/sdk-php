@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Twin\Http\IAM\Response;
+namespace Twin\Http\IAM\V1\Response;
 
 use Throwable;
-use Twin\Http\IAM\Response\Entity\UserCollection;
+use Twin\Http\IAM\V1\Response\Entity\UserData;
 use Twin\Http\Response;
 
-final class UserListResponse extends Response
+final class UserDataResponse extends Response
 {
-    public ?UserCollection $body;
+    public ?UserData $body;
 
     public function __construct(
         int $statusCode,
@@ -22,6 +22,6 @@ final class UserListResponse extends Response
         ?Throwable $exception
     ) {
         parent::__construct($statusCode, $headers, $rawBody, $error, $errorDetails, $exception);
-        $this->assignProperty('body', $body, '?' . UserCollection::class);
+        $this->assignProperty('body', $body, '?' . UserData::class);
     }
 }
