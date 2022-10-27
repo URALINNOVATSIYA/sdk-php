@@ -21,6 +21,10 @@ abstract class QueryRequest extends Request
     public ?string $offsetField = null;
     public ?string $offsetValue = null;
 
+    /**
+     * @param array $properties
+     * @param array<string|int, string|array{key?: string, castTo?: string}> $propertyMap
+     */
     public function __construct(array $properties, array $propertyMap)
     {
         parent::__construct($properties, array_merge([

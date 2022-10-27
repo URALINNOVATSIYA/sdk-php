@@ -86,8 +86,8 @@ abstract class HttpClient
      * @param class-string<T> $responseClass
      * @param bool $requireAuthorization
      * @param array $params
-     * @param array $headers
-     * @param array $options
+     * @param array<string, string> $headers
+     * @param array<string, mixed> $options
      * @return T|PromiseInterface
      * @throws Throwable
      */
@@ -113,8 +113,8 @@ abstract class HttpClient
      * @param class-string<T> $responseClass
      * @param bool $requireAuthorization
      * @param array $params
-     * @param array $headers
-     * @param array $options
+     * @param array<string, string> $headers
+     * @param array<string, mixed> $options
      * @return T
      * @throws Throwable
      */
@@ -128,6 +128,7 @@ abstract class HttpClient
         array $options = []
     ): Response {
         $url = $this->prepareUrl($url);
+        /** @var array{headers: array<string, string>} $options */
         $options = array_merge($this->getRequestOptions($method, $url, $params, $headers), $options);
 
         if ($requireAuthorization && $response = $this->addAuthToken(
@@ -166,8 +167,8 @@ abstract class HttpClient
      * @param class-string<T> $responseClass
      * @param bool $requireAuthorization
      * @param array $params
-     * @param array $headers
-     * @param array $options
+     * @param array<string, string> $headers
+     * @param array<string, mixed> $options
      * @return PromiseInterface
      * @throws Throwable
      */
@@ -229,7 +230,7 @@ abstract class HttpClient
 
     /**
      * @template T of Response
-     * @param array $headers
+     * @param array<string, string> $headers
      * @param class-string<T> $responseClass
      * @param string $error
      * @return T|null
@@ -260,15 +261,26 @@ abstract class HttpClient
         return rtrim($prefix, '/') . '/' . ltrim($url, '/');
     }
 
+    /**
+     * @param ResponseInterface $response
+     * @return array<string, string>
+     */
     private function normalizeResponseHeaders(ResponseInterface $response): array
     {
         $headers = [];
         foreach ($response->getHeaders() as $header => $values) {
-            $headers[strtolower($header)] = implode(';', $values);
+            $headers[strtolower((string)$header)] = implode(';', $values);
         }
         return $headers;
     }
 
+    /**
+     * @param string $method
+     * @param string $url
+     * @param array $params
+     * @param array<string, string> $headers
+     * @return array<string, mixed>
+     */
     private function getRequestOptions(string $method, string $url, array $params, array $headers = []): array
     {
         $this->addDefaultContentTypeHeader($headers);
@@ -290,6 +302,10 @@ abstract class HttpClient
         ];
     }
 
+    /**
+     * @param array<string, string> $headers
+     * @return void
+     */
     private function addDefaultContentTypeHeader(array &$headers): void
     {
         if (empty($headers['Content-Type'])) {
@@ -297,6 +313,11 @@ abstract class HttpClient
         }
     }
 
+    /**
+     * @param string $method
+     * @param array<string, string> $headers
+     * @return string
+     */
     private function getKeyOfParamsOption(string $method, array $headers): string
     {
         if ($method === 'GET') {
@@ -392,6 +413,11 @@ abstract class HttpClient
         }
     }
 
+    /**
+     * @param StreamInterface $response
+     * @param array<string, string> $responseHeaders
+     * @return array{mixed, string}
+     */
     private function parseResponse(StreamInterface $response, array $responseHeaders): array
     {
         if (str_starts_with($responseHeaders['content-disposition'] ?? '', 'attachment')) {

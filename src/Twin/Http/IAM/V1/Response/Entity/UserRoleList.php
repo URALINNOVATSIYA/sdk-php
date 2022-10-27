@@ -13,7 +13,7 @@ use Twin\Entity;
 final class UserRoleList extends Entity implements Collection
 {
     /**
-     * @var UserRole[]
+     * @var array<int, UserRole>
      */
     protected array $roles;
 
@@ -23,7 +23,7 @@ final class UserRoleList extends Entity implements Collection
     }
 
     /**
-     * @return UserRole[]
+     * @return array<int, UserRole>
      */
     public function toArray(bool $ignoreNulls = false): array
     {
@@ -31,7 +31,7 @@ final class UserRoleList extends Entity implements Collection
     }
 
     /**
-     * @return array[]
+     * @return array<int, array>
      */
     public function toNestedArray(bool $ignoreNulls = false): array
     {
@@ -57,15 +57,12 @@ final class UserRoleList extends Entity implements Collection
 
     public function offsetExists(mixed $offset): bool
     {
-        return isset($this->roles[$offset]);
+        return isset($this->roles[(int)$offset]);
     }
 
     public function offsetGet(mixed $offset): UserRole
     {
-        if (!isset($this->roles[$offset])) {
-            throw new OutOfBoundsException('Array index out of bounds.');
-        }
-        return $this->roles[$offset];
+        return $this->roles[(int)$offset] ?? throw new OutOfBoundsException('Array index out of bounds.');;
     }
 
     public function offsetSet(mixed $offset, mixed $value): void

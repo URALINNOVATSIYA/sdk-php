@@ -13,7 +13,7 @@ use Twin\Entity;
 class FileMetadataList extends Entity implements Collection
 {
     /**
-     * @var FileMetadata[]
+     * @var array<int, FileMetadata>
      */
     protected array $files;
 
@@ -23,7 +23,7 @@ class FileMetadataList extends Entity implements Collection
     }
 
     /**
-     * @return FileMetadata[]
+     * @return array<int, FileMetadata>
      */
     public function toArray(bool $ignoreNulls = false): array
     {
@@ -31,7 +31,7 @@ class FileMetadataList extends Entity implements Collection
     }
 
     /**
-     * @return array[]
+     * @return array<int, array>
      */
     public function toNestedArray(bool $ignoreNulls = false): array
     {
@@ -57,15 +57,12 @@ class FileMetadataList extends Entity implements Collection
 
     public function offsetExists(mixed $offset): bool
     {
-        return isset($this->roles[$offset]);
+        return isset($this->files[(int)$offset]);
     }
 
     public function offsetGet(mixed $offset): FileMetadata
     {
-        if (!isset($this->roles[$offset])) {
-            throw new OutOfBoundsException('Array index out of bounds.');
-        }
-        return $this->roles[$offset];
+        return $this->files[(int)$offset] ?? throw new OutOfBoundsException('Array index out of bounds.');;
     }
 
     public function offsetSet(mixed $offset, mixed $value): void

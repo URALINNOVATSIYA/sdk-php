@@ -15,10 +15,14 @@ final class Authenticator extends HttpClient
     private string $password = '';
     private string $authToken = '';
     private string $refreshToken = '';
-    private ?DateTimeImmutable $tokenExpiredAt = null;
+    private ?DateTimeImmutable $expiredAt = null;
     private int $ttl = 0;
     private int $companyId = 0;
     private array $extra = [];
+
+    /**
+     * @var callable(string, string, DateTimeImmutable):void|null
+     */
     private mixed $tokenRefreshCallback = null;
 
     public static function fromBasic(
@@ -45,10 +49,10 @@ final class Authenticator extends HttpClient
         ClientInterface $client = null
     ): self {
         $authenticator = new self($client);
+        $authenticator->ttl = $ttl;
         $authenticator->authToken = $authToken;
         $authenticator->refreshToken = $refreshToken;
-        $authenticator->ttl = $ttl;
-        $authenticator->parseAuthToken();
+        $authenticator->expiredAt = $authenticator->extractTokenExpiration();
         return $authenticator;
     }
 
@@ -59,6 +63,10 @@ final class Authenticator extends HttpClient
         $this->throwExceptionOnErrorResponse(true);
     }
 
+    /**
+     * @param callable(string, string, DateTimeImmutable):void $callback
+     * @return void
+     */
     public function onTokenRefresh(callable $callback): void
     {
         $this->tokenRefreshCallback = $callback;
@@ -66,7 +74,7 @@ final class Authenticator extends HttpClient
 
     public function getTokenExpiration(): ?DateTimeImmutable
     {
-        return $this->tokenExpiredAt;
+        return $this->expiredAt;
     }
 
     public function getRefreshToken(bool $refresh = false): string
@@ -85,7 +93,7 @@ final class Authenticator extends HttpClient
     {
         if ($this->authToken === '' || $this->refreshToken === '') {
             $this->login();
-        } else if ($refresh || $this->tokenExpiredAt <= new DateTimeImmutable()) {
+        } else if ($refresh || $this->expiredAt <= new DateTimeImmutable()) {
             $this->refresh();
         }
     }
@@ -130,17 +138,16 @@ final class Authenticator extends HttpClient
     {
         $this->refreshToken = $response->body->refreshToken;
         $this->authToken = $response->body->authToken;
-        $this->parseAuthToken();
+        $this->expiredAt = $this->extractTokenExpiration();
         if ($this->tokenRefreshCallback) {
-            ($this->tokenRefreshCallback)($this->authToken, $this->refreshToken, $this->tokenExpiredAt);
+            ($this->tokenRefreshCallback)($this->authToken, $this->refreshToken, $this->expiredAt);
         }
     }
 
-    private function parseAuthToken(): void
+    private function extractTokenExpiration(): DateTimeImmutable
     {
         if ($this->authToken === '') {
-            $this->tokenExpiredAt = new DateTimeImmutable();
-            return;
+            return new DateTimeImmutable();
         }
         $data = explode('.', $this->authToken);
         if (count($data) === 3) {
@@ -155,8 +162,7 @@ final class Authenticator extends HttpClient
                         $exp = number_format((float)$exp, 6, '.', '');
                         $exp = DateTimeImmutable::createFromFormat('U.u', $exp);
                         if ($exp) {
-                            $this->tokenExpiredAt = $exp;
-                            return;
+                            return $exp;
                         }
                     }
                 }

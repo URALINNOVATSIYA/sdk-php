@@ -53,15 +53,12 @@ final class SettingsMap extends Entity implements Collection
 
     public function offsetExists(mixed $offset): bool
     {
-        return isset($this->settings[$offset]);
+        return isset($this->settings[(string)$offset]);
     }
 
     public function offsetGet(mixed $offset): string|int|float|bool
     {
-        if (!isset($this->settings[$offset])) {
-            throw new OutOfBoundsException('Array index out of bounds.');
-        }
-        return $this->settings[$offset];
+        return $this->settings[(string)$offset] ?? throw new OutOfBoundsException('Array index out of bounds.');
     }
 
     public function offsetSet(mixed $offset, mixed $value): void

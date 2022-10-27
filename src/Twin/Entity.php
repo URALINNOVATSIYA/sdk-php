@@ -75,6 +75,7 @@ abstract class Entity
         $valueCast = $this->getTypeCaster($valueType, 'element');
         foreach ($values as $key => $value) {
             try {
+                /** @psalm-suppress MixedArrayOffset */
                 $typedValues[$keyCast($key, $key)] = $valueCast($value, $key);
             } catch (TypeError $e) {
                 throw new InvalidArgumentException($this->formErrorText($e->getMessage()));
@@ -83,14 +84,20 @@ abstract class Entity
         $this->assignProperty($property, $typedValues);
     }
 
+    /**
+     * @param array $values
+     * @param array<string|int, string|array{key?: string, castTo?: string}> $propertyMap
+     * @param bool $ignoreNonExistingValues
+     * @return void
+     */
     protected function assignProperties(array $values, array $propertyMap, bool $ignoreNonExistingValues = false): void
     {
         foreach ($propertyMap as $property => $key) {
             if (is_array($key)) {
-                $castTo = $key['castTo'] ?? null;
+                $castTo = $key['castTo'] ?? '';
                 $key = $key['key'] ?? null;
             } else {
-                $castTo = null;
+                $castTo = '';
             }
             if (is_int($property)) {
                 if ($key === null) {
@@ -107,7 +114,7 @@ abstract class Entity
         }
     }
 
-    protected function assignProperty(string $property, mixed $value, ?string $castTo = null): void
+    protected function assignProperty(string $property, mixed $value, string $castTo = ''): void
     {
         if ($castTo) {
             try {

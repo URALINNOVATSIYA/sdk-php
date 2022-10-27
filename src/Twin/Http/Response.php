@@ -16,6 +16,8 @@ abstract class Response extends Entity
     public mixed $errorDetails;
     public ?Throwable $exception;
 
+    protected string $castBodyTo = '';
+
     /**
      * @var string[]
      */
@@ -28,10 +30,11 @@ abstract class Response extends Entity
         'exception'
     ];
 
-    public function __construct(
+    final public function __construct(
         int $statusCode,
         array $headers,
         string $rawBody,
+        mixed $body,
         string $error,
         mixed $errorDetails,
         ?Throwable $exception
@@ -42,5 +45,6 @@ abstract class Response extends Entity
         $this->error = $error;
         $this->errorDetails = $errorDetails;
         $this->exception = $exception;
+        $this->assignProperty('body', $body, $this->castBodyTo);
     }
 }
