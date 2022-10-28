@@ -136,12 +136,13 @@ abstract class Entity
     {
         $nullable = false;
         $types = explode('|', $type);
-        foreach ($types as &$t) {
+        foreach ($types as $k => &$t) {
             if ($t[0] === '?') {
                 $nullable = true;
                 $t = ltrim($t, '?');
             } else if ($t === 'null') {
                 $nullable = true;
+                unset($types[$k]);
             }
         }
         $requiredType = implode(', ', $types) . ($nullable ? ' or null' : '');
@@ -181,6 +182,9 @@ abstract class Entity
                         }
                         break;
                     default:
+                        if (is_a($value, $type)) {
+                            return $value;
+                        }
                         try {
                             return new $type($value);
                         } catch (TypeError) {

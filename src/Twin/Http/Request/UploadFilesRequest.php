@@ -15,7 +15,7 @@ class UploadFilesRequest extends Request
 
     protected array $files = [];
 
-    public function __construct(array $properties)
+    public function __construct(array $properties = [])
     {
         parent::__construct($properties, [
             'private',
