@@ -3,6 +3,7 @@
 namespace Tests\Twin;
 
 use DateTimeImmutable;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Twin\Entity;
 
@@ -25,7 +26,7 @@ class TestEntity extends Entity
             'p4',
             'p5',
             'p6' => ['castTo' => '?' . DateTimeImmutable::class],
-            'p7' => ['castTo' => 'string|null|' . TestEntity::class]
+            'p7' => ['castTo' => 'string|null|' . TestEntity::class],
         ];
         $this->assignProperties($properties, $propMap, $ignoreNonExistingValues);
     }
@@ -74,5 +75,93 @@ class EntityTest extends TestCase
             'p6' => null,
             'p7' => null
         ], $entity->toArray());
+    }
+
+    public function testAssignPropertiesWithIgnoringNonExistent(): void
+    {
+        $entity = new TestEntity(['p2' => 'abc', 'p3' => 123, 'p4' => false], true);
+
+        $this->assertSame([
+            'p2' => 'abc',
+            'p3' => 123,
+            'p4' => false,
+        ], $entity->toArray());
+        $this->assertTrue($entity->propertyExists('p3'));
+        $this->assertFalse($entity->propertyExists('p1'));
+        $this->assertFalse($entity->propertyExists('p5'));
+        $this->assertFalse($entity->propertyExists('p6'));
+        $this->assertFalse($entity->propertyExists('p7'));
+    }
+
+    public function testInvalidTypeAssignmentForSingleType(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectErrorMessage(
+            'Invalid format of the test entity: p2 must be an instance of type string, int used.'
+        );
+
+        new TestEntity(['p2' => 123], true);
+    }
+
+    public function testInvalidTypeAssignmentForUnionType(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectErrorMessage(
+            'Invalid format of the test entity: p5 must be an instance of type float, bool or null, array used.'
+        );
+
+        new TestEntity(['p5' => []], true);
+    }
+
+    public function testInvalidTypeCastingOfSingleType(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectErrorMessage(
+            'Invalid format of the test entity: p6 must be an instance of type ' .
+            'DateTimeImmutable or null, bool used.'
+        );
+
+        new TestEntity(['p6' => true], true);
+    }
+
+    public function testInvalidTypeCastingOfUnionType(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectErrorMessage(
+            'Invalid format of the test entity: p7 must be an instance of type ' .
+            'string, Tests\Twin\TestEntity or null, float used.'
+        );
+
+        new TestEntity(['p7' => 3.45], true);
+    }
+
+    public function testToArrayIgnoringNulls(): void
+    {
+        $props = [
+            'p1' => .45,
+            'p2' => 'abc',
+            'p3' => 123,
+            'p4' => false
+        ];
+        $entity = new TestEntity($props, false);
+
+        $this->assertSame($props, $entity->toArray(true));
+    }
+
+    public function testToNestedArrayIgnoringNulls(): void
+    {
+        $props = [
+            'p2' => 'abc',
+            'p3' => 123,
+            'p4' => false,
+            'p7' => [
+                'p2' => 'test',
+                'p3' => 1,
+                'p4' => true
+            ]
+        ];
+        $entity = new TestEntity($props, false);
+
+        $this->assertSame($props, $entity->toNestedArray(true));
     }
 }

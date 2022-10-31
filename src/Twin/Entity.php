@@ -1,12 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Twin;
 
 use TypeError;
+use RuntimeException;
 use InvalidArgumentException;
 
 abstract class Entity
 {
+    use TypeCasting;
+
     /**
      * @var string[]
      */
@@ -101,7 +106,7 @@ abstract class Entity
             }
             if (is_int($property)) {
                 if ($key === null) {
-                    continue;
+                    throw new RuntimeException("Key of element #$property is not defined.");
                 }
                 $property = $key;
             } else if ($key === null) {
@@ -117,137 +122,14 @@ abstract class Entity
     protected function assignProperty(string $property, mixed $value, string $castTo = ''): void
     {
         if ($castTo) {
-            try {
-                $this->{$property} = $this->getTypeCaster($castTo)($value, $property);
-            } catch (TypeError $e) {
-                throw new InvalidArgumentException($this->formErrorText($e->getMessage()));
-            }
+            $this->{$property} = $this->getTypeCaster($castTo)($value, $property);
         } else {
             try {
                 $this->{$property} = $value;
             } catch (TypeError $e) {
-                throw new InvalidArgumentException($this->formErrorText($this->formTypeErrorMessage($e, $castTo)));
+                $this->toInvalidArgumentException($e, $castTo);
             }
         }
         $this->__properties[] = $property;
-    }
-
-    private function getTypeCaster(string $type, string $errorPrefix = ''): callable
-    {
-        $nullable = false;
-        $types = explode('|', $type);
-        foreach ($types as $k => &$t) {
-            if ($t[0] === '?') {
-                $nullable = true;
-                $t = ltrim($t, '?');
-            } else if ($t === 'null') {
-                $nullable = true;
-                unset($types[$k]);
-            }
-        }
-        $requiredType = implode(', ', $types) . ($nullable ? ' or null' : '');
-
-        return function (mixed $value, mixed $key) use ($types, $nullable, $errorPrefix, $requiredType) {
-            if ($value === null) {
-                if ($nullable) {
-                    return null;
-                }
-                $this->throwInvalidTypeCastingError($errorPrefix, $value, $key, $requiredType);
-            }
-            foreach ($types as $type) {
-                switch ($type) {
-                    case 'string':
-                        if (is_string($value)) {
-                            return $value;
-                        }
-                        break;
-                    case 'bool':
-                        if (is_bool($value)) {
-                            return $value;
-                        }
-                        break;
-                    case 'int':
-                        if (is_int($value)) {
-                            return $value;
-                        }
-                        break;
-                    case 'float':
-                        if (is_float($value)) {
-                            return $value;
-                        }
-                        break;
-                    case 'scalar':
-                        if (is_scalar($value)) {
-                            return $value;
-                        }
-                        break;
-                    default:
-                        if (is_a($value, $type)) {
-                            return $value;
-                        }
-                        try {
-                            return new $type($value);
-                        } catch (TypeError) {
-                            break;
-                        }
-                }
-            }
-            $this->throwInvalidTypeCastingError($errorPrefix, $value, $key, $requiredType);
-        };
-    }
-
-    private function throwInvalidTypeCastingError(string $prefix, mixed $value, mixed $key, string $requiredType): void
-    {
-        $actualType = strtolower(gettype($value));
-        if ($prefix === 'element') {
-            if (is_int($key)) {
-                $key = "#$key";
-            } else {
-                $key = "with key \"$key\"";
-            }
-        }
-        throw new TypeError(ltrim("$prefix $key must be of type $requiredType, $actualType given"));
-    }
-
-    private function formErrorText(string $validationError): string
-    {
-        $text = $this->typeToText(static::class);
-        return "Invalid format of the $text: $validationError.";
-    }
-
-    private function formTypeErrorMessage(TypeError $e, ?string $type = null): string
-    {
-        $error = $e->getMessage();
-        if (strncmp('Cannot assign', $error, 13) === 0) {
-            preg_match('/^Cannot assign ([0-9?a-zA-Z]+).*\$([a-zA-Z_0-9]+)(.+)$/', $error, $matches);
-            if ($matches) {
-                $matches[3] = preg_replace('/\?([\\\\0-9_a-zA-Z]+)/', '$1 or null', $matches[3]);
-                $error = "$matches[2] must be an instance$matches[3], $matches[1] used";
-            }
-        } else {
-            preg_match(
-                '/^.*::[a-z_0-9]+([A-Z]?[a-zA-Z_0-9]*)\(\): Argument #1 \(\$[a-z]+\)(.+given).*$/',
-                $error,
-                $matches
-            );
-            if ($matches) {
-                $matches[2] = preg_replace('/\?([\\\\0-9_a-zA-Z]+)/', '$1 or null', $matches[2]);
-                if (empty($matches[1]) && $type) {
-                    $error = $this->typeToText($type);
-                } else {
-                    $error = lcfirst($matches[1]);
-                }
-                $error .= $matches[2];
-            }
-        }
-        return $error;
-    }
-
-    private function typeToText(string $type): string
-    {
-        $class = substr($type, (int)strrpos($type, '\\') + 1);
-        $words = preg_split('/(?=\p{Lu})/u', $class, -1, PREG_SPLIT_NO_EMPTY);
-        $words = array_map('lcfirst', $words);
-        return implode(' ', $words);
     }
 }
