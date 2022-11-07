@@ -1,6 +1,6 @@
 <?php
 
-use Twin\Http\Authenticator;
+use Twin\Sdk\Http\Authenticator;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 

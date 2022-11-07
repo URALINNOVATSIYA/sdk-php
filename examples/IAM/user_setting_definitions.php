@@ -1,6 +1,6 @@
 <?php
 
-use Twin\Http\IAM\V1\IamHttpClient;
+use Twin\Sdk\Http\IAM\V1\IamHttpClient;
 
 $authenticator = require_once __DIR__ . '/../authentication.php';
 

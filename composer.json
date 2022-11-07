@@ -23,12 +23,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Twin\\": "src/Twin/"
+            "Twin\\Sdk\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Tests\\Twin\\Sdk\\": "tests/"
         }
     },
     "config": {
