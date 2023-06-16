@@ -6,7 +6,9 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Promise\PromiseInterface;
 use Twin\Sdk\Http\Authenticator;
 use Twin\Sdk\Http\HttpClient;
+use Twin\Sdk\Http\Messaging\V1\Request\CreateMessageBatchRequest;
 use Twin\Sdk\Http\Messaging\V1\Request\TaskListRequest;
+use Twin\Sdk\Http\Messaging\V1\Response\CreateMessageBatchResponse;
 use Twin\Sdk\Http\Messaging\V1\Response\TaskListResponse;
 
 class MessagingHttpClient extends HttpClient
@@ -28,4 +30,14 @@ class MessagingHttpClient extends HttpClient
         );
     }
 
+    public function createMessageBatch(CreateMessageBatchRequest $request): CreateMessageBatchResponse|PromiseInterface
+    {
+        return $this->request(
+            'POST',
+            'messages',
+            CreateMessageBatchResponse::class,
+            true,
+            $request->toArray()
+        );
+    }
 }

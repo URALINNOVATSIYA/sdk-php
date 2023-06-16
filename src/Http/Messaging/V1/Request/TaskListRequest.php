@@ -7,7 +7,7 @@ use Twin\Sdk\Http\Request\QueryRequest;
 final class TaskListRequest extends QueryRequest
 {
     public ?string $name;
-    public ?string $status;         // Enum TaskStatus: CREATED, RUNNING, PAUSED, COMPLETED
+    public ?string $status;
     public ?string $from;
     public ?string $to;
 

@@ -258,7 +258,7 @@ abstract class HttpClient
         if ($url === '') {
             return $prefix;
         }
-        return rtrim($prefix, '/') . 'HttpClient.php/' . ltrim($url, '/');
+        return rtrim($prefix, '/') . '/' . ltrim($url, '/');
     }
 
     /**

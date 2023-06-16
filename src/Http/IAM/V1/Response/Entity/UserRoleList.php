@@ -62,7 +62,7 @@ final class UserRoleList extends Entity implements Collection
 
     public function offsetGet(mixed $offset): UserRole
     {
-        return $this->roles[(int)$offset] ?? throw new OutOfBoundsException('Array index out of bounds.');;
+        return $this->roles[(int)$offset] ?? throw new OutOfBoundsException('Array index out of bounds.');
     }
 
     public function offsetSet(mixed $offset, mixed $value): void
