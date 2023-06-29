@@ -81,7 +81,8 @@ abstract class Entity
         foreach ($values as $key => $value) {
             try {
                 /** @psalm-suppress MixedArrayOffset */
-                $typedValues[$keyCast($key, $key)] = $valueCast($value, $key);
+                $typedValues[$keyCast($key, $key)] = is_array($value) && is_object($valueCast) ?
+                    $valueCast($value, $key)->toNestedArray() : $valueCast($value, $key);
             } catch (TypeError $e) {
                 throw new InvalidArgumentException($this->formErrorText($e->getMessage()));
             }

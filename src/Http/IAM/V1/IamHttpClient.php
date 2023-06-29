@@ -9,10 +9,10 @@ use GuzzleHttp\Promise\PromiseInterface;
 use Twin\Sdk\Http\Authenticator;
 use Twin\Sdk\Http\HttpClient;
 use Twin\Sdk\Http\IAM\V1\Request\UserListRequest;
-use Twin\Sdk\Http\IAM\V1\Response\UserDataResponse;
-use Twin\Sdk\Http\IAM\V1\Response\UserListResponse;
-use Twin\Sdk\Http\IAM\V1\Response\UserSettingDefinitionsResponse;
-use Twin\Sdk\Http\IAM\V1\Response\UserSettingsResponse;
+use Twin\Sdk\Http\IAM\V1\Response\User\UserDataResponse;
+use Twin\Sdk\Http\IAM\V1\Response\User\UserListResponse;
+use Twin\Sdk\Http\IAM\V1\Response\User\UserSettingDefinitionsResponse;
+use Twin\Sdk\Http\IAM\V1\Response\User\UserSettingsResponse;
 use Twin\Sdk\Http\Request\UploadFilesRequest;
 use Twin\Sdk\Http\Response\DownloadFileResponse;
 use Twin\Sdk\Http\Response\UploadFilesResponse;
@@ -21,7 +21,7 @@ class IamHttpClient extends HttpClient
 {
     public function __construct(Authenticator $authenticator, ClientInterface $client = null)
     {
-        parent::__construct('https://iam.twin24.ai/api/v1', $authenticator, $client);
+        parent::__construct('https://iam.twin24.ai/api/v1', $authenticator, $client); // https://iam.dev.twin24.ai/api/v1
     }
 
     public function getUserSettingDefinitions(): UserSettingDefinitionsResponse|PromiseInterface

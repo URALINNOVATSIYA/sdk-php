@@ -7,8 +7,8 @@ use Twin\Sdk\Http\Request\QueryRequest;
 final class UserListRequest extends QueryRequest
 {
     public ?int $companyId;
-    public string|int|null $userId; // comma-separated list of user identifiers
-    public ?string $roles;          // comma-separated list of user roles
+    public int|string|null $userId;     // comma-separated list of user identifiers
+    public array|string|null $roles;    // comma-separated list of user roles
     public ?bool $online;
 
     public function __construct(array $properties = [])
