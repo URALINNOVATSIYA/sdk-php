@@ -103,7 +103,7 @@ class MessagingHttpClient extends HttpClient
         );
     }
 
-    public function cancelMessage(CancelMessageSendingRequest $request): CancelMessageSendingResponse|PromiseInterface
+    public function cancelMessageSending(CancelMessageSendingRequest $request): CancelMessageSendingResponse|PromiseInterface
     {
         return $this->request(
             'DELETE',
@@ -410,14 +410,4 @@ class MessagingHttpClient extends HttpClient
             $request->toNestedArray(true)
         );
     }
-
-    // endregion
-
-    // region MailRu Templates
-
-    // endregion
-
-    // region Infobip
-
-    // endregion
 }
