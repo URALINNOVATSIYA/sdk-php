@@ -37,13 +37,14 @@ class UploadFilesRequest extends Request
     public function toArray(bool $ignoreNulls = false): array
     {
         $values = parent::toArray($ignoreNulls);
+        $files = $this->files;
         foreach ($values as $key => $value) {
-            $this->files[] = [
+            $files[] = [
                 'name' => $key,
                 'contents' => $value
             ];
         }
-        return $this->files;
+        return $files;
     }
 
     public function toNestedArray(bool $ignoreNulls = false): array
