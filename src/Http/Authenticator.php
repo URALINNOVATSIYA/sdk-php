@@ -7,7 +7,7 @@ namespace Twin\Sdk\Http;
 use DateTimeImmutable;
 use GuzzleHttp\ClientInterface;
 use Twin\Sdk\Http\Exception\InvalidResponse;
-use Twin\Sdk\Http\IAM\V1\Response\LoginResponse;
+use Twin\Sdk\Http\IAM\V1\Response\Auth\LoginResponse;
 
 final class Authenticator extends HttpClient
 {
@@ -58,7 +58,7 @@ final class Authenticator extends HttpClient
 
     private function __construct(?ClientInterface $client)
     {
-        parent::__construct('https://iam.twin24.ai/api/v1/auth', $this, $client);
+        parent::__construct('https://iam.twin24.ai/api/v1/auth', $this, $client);   // https://iam.dev.twin24.ai/api/v1/auth
         $this->throwExceptionOnRequestError(true);
         $this->throwExceptionOnErrorResponse(true);
     }

@@ -62,7 +62,7 @@ class FileMetadataList extends Entity implements Collection
 
     public function offsetGet(mixed $offset): FileMetadata
     {
-        return $this->files[(int)$offset] ?? throw new OutOfBoundsException('Array index out of bounds.');;
+        return $this->files[(int)$offset] ?? throw new OutOfBoundsException('Array index out of bounds.');
     }
 
     public function offsetSet(mixed $offset, mixed $value): void
