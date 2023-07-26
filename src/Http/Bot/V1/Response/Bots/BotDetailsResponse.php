@@ -10,5 +10,4 @@ class BotDetailsResponse extends Response
     public ?BotDetails $body;
 
     protected string $castBodyTo = '?' . BotDetails::class;
-
 }

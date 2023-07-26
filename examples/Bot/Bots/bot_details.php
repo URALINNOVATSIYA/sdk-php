@@ -12,4 +12,4 @@ $botId = null;
 
 $response = $bot->getBotDetails($botId, new BotDetailsRequest($data));
 
-var_dump($response->toNestedArray());
+print_r($response->toNestedArray());
