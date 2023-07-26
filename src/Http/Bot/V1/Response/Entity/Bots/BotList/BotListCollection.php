@@ -1,6 +1,6 @@
 <?php
 
-namespace Twin\Sdk\Http\Bot\V1\Entity\Bots;
+namespace Twin\Sdk\Http\Bot\V1\Response\Entity\Bots\BotList;
 
 use Twin\Sdk\Entity;
 
