@@ -31,7 +31,7 @@ class BotHttpClient extends HttpClient
         );
     }
 
-    public function getBotDetails(mixed $botId, BotDetailsRequest $request): BotDetailsResponse|PromiseInterface
+    public function getBotDetails(string $botId, BotDetailsRequest $request): BotDetailsResponse|PromiseInterface
     {
         return $this->request(
             'GET',
@@ -42,7 +42,7 @@ class BotHttpClient extends HttpClient
         );
     }
 
-    public function deleteBot(mixed $botId): BotDeleteResponse|PromiseInterface
+    public function deleteBot(string $botId): BotDeleteResponse|PromiseInterface
     {
         return $this->request(
             'DELETE',
@@ -52,7 +52,7 @@ class BotHttpClient extends HttpClient
         );
     }
 
-    public function recoverBot(mixed $botId): BotRecoverResponse|PromiseInterface
+    public function recoverBot(string $botId): BotRecoverResponse|PromiseInterface
     {
         return $this->request(
             'PUT',
