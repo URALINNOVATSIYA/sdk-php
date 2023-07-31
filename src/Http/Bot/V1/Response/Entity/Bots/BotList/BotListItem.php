@@ -7,20 +7,20 @@ use Twin\Sdk\Entity;
 
 class BotListItem extends Entity
 {
-    public string $id;
-    public string $name;
-    public int $companyId;
-    public string $accessType;
-    public string $language;
-    public string $solver;
-    public bool $copyingInProgress;
-    public bool $copyingNluAgentCompleted;
-    public bool $copyingMediaCompleted;
-    public array $viewDetails;
-    public DateTimeImmutable $createdAt;
-    public DateTimeImmutable $updatedAt;
-    public int $updatedBy;
-    public ?DateTimeImmutable $deletedAt;
+    public ?string $id = null;
+    public ?string $name = null;
+    public ?int $companyId = null;
+    public ?string $accessType = null;
+    public ?string $language = null;
+    public ?string $solver = null;
+    public ?bool $copyingInProgress = null;
+    public ?bool $copyingNluAgentCompleted = null;
+    public ?bool $copyingMediaCompleted = null;
+    public ?array $viewDetails = null;
+    public ?DateTimeImmutable $createdAt = null;
+    public ?DateTimeImmutable $updatedAt = null;
+    public ?int $updatedBy = null;
+    public ?DateTimeImmutable $deletedAt = null;
 
     public function __construct(array $properties)
     {
@@ -35,8 +35,8 @@ class BotListItem extends Entity
             'copyingNluAgentCompleted',
             'copyingMediaCompleted',
             'viewDetails',
-            'createdAt' => ['castTo' => DateTimeImmutable::class],
-            'updatedAt' => ['castTo' => DateTimeImmutable::class],
+            'createdAt' => ['castTo' => '?' . DateTimeImmutable::class],
+            'updatedAt' => ['castTo' => '?' . DateTimeImmutable::class],
             'updatedBy',
             'deletedAt' => ['castTo' => '?' . DateTimeImmutable::class]
         ], true);

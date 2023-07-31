@@ -7,27 +7,27 @@ use Twin\Sdk\Entity;
 
 class BotDetails extends Entity
 {
-    public string $id;
-    public string $name;
-    public int $companyId;
-    public string $accessType;
-    public string $language;
-    public string $solver;
-    public bool $copyingInProgress;
-    public bool $copyingNluAgentCompleted;
-    public bool $copyingMediaCompleted;
-    public ?DateTimeImmutable $deletedAt;
-    public ?ViewDetails $viewDetails;
-    public bool $debugEnabled;
-    public bool $disableNormalization;
-    public string $currentNodeId;
-    public int $maxRepeatCount;
-    public bool $phraseMeasuringDisabled;
-    public ?string $defaultNodeId;
-    public int $clientTimeout;
-    public int $maxCycleCount;
-    public ?array $nodes;
-    public array $variableFormatters;
+    public ?string $id = null;
+    public ?string $name = null;
+    public ?int $companyId = null;
+    public ?string $accessType = null;
+    public ?string $language = null;
+    public ?string $solver = null;
+    public ?bool $copyingInProgress = null;
+    public ?bool $copyingNluAgentCompleted = null;
+    public ?bool $copyingMediaCompleted = null;
+    public ?DateTimeImmutable $deletedAt = null;
+    public ?array $viewDetails = null;
+    public ?bool $debugEnabled = null;
+    public ?bool $disableNormalization = null;
+    public ?string $currentNodeId = null;
+    public ?int $maxRepeatCount = null;
+    public ?bool $phraseMeasuringDisabled = null;
+    public ?string $defaultNodeId = null;
+    public ?int $clientTimeout = null;
+    public ?int $maxCycleCount = null;
+    public ?array $nodes = null;
+    public ?array $variableFormatters = null;
 
     public function __construct(array $properties)
     {
@@ -42,7 +42,7 @@ class BotDetails extends Entity
             'copyingNluAgentCompleted',
             'copyingMediaCompleted',
             'deletedAt' => ['castTo' => '?' . DateTimeImmutable::class],
-            'viewDetails' => ['castTo' => '?' . ViewDetails::class],
+            'viewDetails',
             'debugEnabled',
             'disableNormalization',
             'currentNodeId',
