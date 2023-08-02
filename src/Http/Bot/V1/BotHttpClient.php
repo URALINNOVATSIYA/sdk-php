@@ -5,11 +5,13 @@ namespace Twin\Sdk\Http\Bot\V1;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Promise\PromiseInterface;
 use Twin\Sdk\Http\Authenticator;
+use Twin\Sdk\Http\Bot\V1\Request\Bots\BotCopyRequest;
 use Twin\Sdk\Http\Bot\V1\Request\Bots\BotDetailsRequest;
 use Twin\Sdk\Http\Bot\V1\Request\Bots\BotListRequest;
 use Twin\Sdk\Http\Bot\V1\Request\Facts\FactDeleteRequest;
 use Twin\Sdk\Http\Bot\V1\Request\Facts\FactListRequest;
 use Twin\Sdk\Http\Bot\V1\Request\Facts\FactSaveRequest;
+use Twin\Sdk\Http\Bot\V1\Response\Bots\BotCopyResponse;
 use Twin\Sdk\Http\Bot\V1\Response\Bots\BotDeleteResponse;
 use Twin\Sdk\Http\Bot\V1\Response\Bots\BotDetailsResponse;
 use Twin\Sdk\Http\Bot\V1\Response\Bots\BotListResponse;
@@ -65,6 +67,17 @@ class BotHttpClient extends HttpClient
             "bots/$botId/recover",
             BotRecoverResponse::class,
             true
+        );
+    }
+
+    public function copyBot(string $botId, BotCopyRequest $request): BotCopyResponse|PromiseInterface
+    {
+        return $this->request(
+            'POST',
+            "bots/$botId/copy",
+            BotCopyResponse::class,
+            true,
+            $request->toArray(true)
         );
     }
 
