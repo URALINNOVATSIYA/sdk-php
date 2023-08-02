@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Twin\Sdk\Http;
 
 use Throwable;
+use OutOfBoundsException;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\ClientInterface;
 use Psr\Http\Message\StreamInterface;
-use OutOfBoundsException;
 use GuzzleHttp\Promise\FulfilledPromise;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
@@ -27,24 +28,31 @@ abstract class HttpClient
     /**
      * @var int Max request execution time
      */
-    protected int $requestTimeout = 60;
+    private int $requestTimeout = 60;
 
     /**
      * @var int Max server connection time
      */
-    protected int $connectionTimeout = 5;
+    private int $connectionTimeout = 5;
 
     /**
      * @var string Default content type of any server request
      */
-    protected string $defaultContentType = 'application/json';
+    private string $defaultContentType = 'application/json';
 
     /**
-     * @var string The base API URL of a Twin service
+     * @var string The base API URL of a Twin service on production
      */
-    protected string $apiBaseUrl;
+    private string $prodApiBaseUrl;
+
+    /**
+     * @var string The base API URL of a Twin service on development
+     */
+    private string $devApiBaseUrl;
 
     private bool $async = false;
+
+    private bool $test = false;
 
     private bool $throwExceptionOnRequestError = true;
 
@@ -54,11 +62,55 @@ abstract class HttpClient
 
     private ClientInterface $client;
 
-    public function __construct(string $apiBaseUrl, Authenticator $authenticator, ClientInterface $client = null)
-    {
-        $this->apiBaseUrl = $apiBaseUrl;
+    public function __construct(
+        string $prodApiBaseUrl,
+        string $devApiBaseUrl,
+        Authenticator $authenticator,
+        ClientInterface $client = null,
+    ) {
+        $this->prodApiBaseUrl = $prodApiBaseUrl;
+        $this->devApiBaseUrl = $devApiBaseUrl;
         $this->authenticator = $authenticator;
         $this->client = $client ?? new Client();
+    }
+
+    public function testOn(): static
+    {
+        if (!$this->test) {
+            $this->test = true;
+            $this->authenticator->testOn();
+        }
+        return $this;
+    }
+
+    public function testOff(): static
+    {
+        if ($this->test) {
+            $this->test = false;
+            $this->authenticator->testOff();
+        }
+        return $this;
+    }
+
+    public function test(bool $flag): static
+    {
+        if ($this->test !== $flag) {
+            $this->test = $flag;
+            $this->authenticator->test($flag);
+        }
+        return $this;
+    }
+
+    public function asyncOn(): static
+    {
+        $this->async = true;
+        return $this;
+    }
+
+    public function asyncOff(): static
+    {
+        $this->async = false;
+        return $this;
     }
 
     public function async(bool $flag): static
@@ -77,6 +129,28 @@ abstract class HttpClient
     {
         $this->throwExceptionOnErrorResponse = $flag;
         return $this;
+    }
+
+    public function setConnectionTimeout(int $timeout): static
+    {
+        $this->connectionTimeout = $timeout;
+        return $this;
+    }
+
+    public function getConnectionTimeout(): int
+    {
+        return $this->connectionTimeout;
+    }
+
+    public function setRequestTimeout(int $timeout): static
+    {
+        $this->requestTimeout = $timeout;
+        return $this;
+    }
+
+    public function getRequestTimeout(): int
+    {
+        return $this->requestTimeout;
     }
 
     /**
@@ -131,16 +205,11 @@ abstract class HttpClient
         /** @var array{headers: array<string, string>} $options */
         $options = array_merge($this->getRequestOptions($method, $url, $params, $headers), $options);
 
-        if ($requireAuthorization && $response = $this->addAuthToken(
-                $options['headers'],
-                $responseClass,
-                'Unable to get auth token.'
-            )) {
-                return $response;
+        if ($requireAuthorization && $response = $this->addAuthToken($options['headers'], $responseClass)) {
+            return $response;
         }
 
         while (true) {
-
             try {
                 $response = $this->client->request($method, $url, $options);
             } catch (Throwable $e) {
@@ -149,12 +218,7 @@ abstract class HttpClient
             if (null !== $response = $this->processResponse($responseClass, $response)) {
                 return $response;
             }
-
-            if ($response = $this->addAuthToken(
-                    $options['headers'],
-                    $responseClass,
-                    'Unable to refresh auth token.'
-                )) {
+            if ($response = $this->addAuthToken($options['headers'], $responseClass)) {
                 return $response;
             }
         }
@@ -193,29 +257,25 @@ abstract class HttpClient
             if ($response !== null) {
                 return $response;
             }
-            if ($response = $this->addAuthToken(
-                $headers,
-                $responseClass,
-                'Unable to refresh auth token.'
-            )) {
+            if ($response = $this->addAuthToken($headers, $responseClass)) {
                 return $response;
             }
             return $this->requestSync($method, $url, $responseClass, false, $params, $headers, $options);
         };
 
-        $onReject = function (RequestException $e) use ($onFulfilled, $responseClass): Response {
-            $response = $e->getResponse();
+        $onReject = function (RequestException|ConnectException $e) use ($onFulfilled, $responseClass): Response {
+            if ($e instanceof RequestException) {
+                $response = $e->getResponse();
+            } else {
+                $response = null;
+            }
             if ($response === null) {
                 return $this->processRequestException($responseClass, $e);
             }
             return $onFulfilled($response);
         };
 
-        if ($requireAuthorization && $response = $this->addAuthToken(
-                $headers,
-                $responseClass,
-                'Unable to get auth token.'
-            )) {
+        if ($requireAuthorization && $response = $this->addAuthToken($headers, $responseClass)) {
             return new FulfilledPromise($response);
         }
 
@@ -232,11 +292,10 @@ abstract class HttpClient
      * @template T of Response
      * @param array<string, string> $headers
      * @param class-string<T> $responseClass
-     * @param string $error
      * @return T|null
      * @throws Throwable
      */
-    protected function addAuthToken(array &$headers, string $responseClass, string $error): ?Response
+    protected function addAuthToken(array &$headers, string $responseClass): ?Response
     {
         try {
             $headers['Authorization'] = 'Bearer ' . $this->authenticator->getAuthToken(true);
@@ -244,14 +303,14 @@ abstract class HttpClient
             if ($this->throwExceptionOnErrorResponse) {
                 throw $e;
             }
-            return new $responseClass(0, [], '', null, $error, [], $e);
+            return new $responseClass(0, [], '', null, $e->getMessage(), [], $e);
         }
         return null;
     }
 
     private function prepareUrl(string $url): string
     {
-        $prefix = $this->apiBaseUrl;
+        $prefix = $this->test ? $this->devApiBaseUrl : $this->prodApiBaseUrl;
         if ($prefix === '') {
             return $url;
         }

@@ -10,7 +10,7 @@ use OutOfBoundsException;
 use Twin\Sdk\Collection;
 use Twin\Sdk\Entity;
 
-final class UserRoleList extends Entity implements Collection
+class UserRoleList extends Entity implements Collection
 {
     /**
      * @var array<int, UserRole>

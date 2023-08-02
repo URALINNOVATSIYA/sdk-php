@@ -58,7 +58,12 @@ final class Authenticator extends HttpClient
 
     private function __construct(?ClientInterface $client)
     {
-        parent::__construct('https://iam.twin24.ai/api/v1/auth', $this, $client);   // https://iam.dev.twin24.ai/api/v1/auth
+        parent::__construct(
+            'https://iam.twin24.ai/api/v1/auth',
+            'https://iam.dev.twin24.ai/api/v1/auth',
+            $this,
+            $client,
+        );
         $this->throwExceptionOnRequestError(true);
         $this->throwExceptionOnErrorResponse(true);
     }
@@ -93,7 +98,7 @@ final class Authenticator extends HttpClient
     {
         if ($this->authToken === '' || $this->refreshToken === '') {
             $this->login();
-        } else if ($refresh || $this->expiredAt <= new DateTimeImmutable()) {
+        } else if ($refresh && $this->expiredAt <= new DateTimeImmutable()) {
             $this->refresh();
         }
     }
@@ -119,7 +124,7 @@ final class Authenticator extends HttpClient
     private function refresh(): void
     {
         $response = $this->requestSync(
-            'GET',
+            'POST',
             'refresh',
             LoginResponse::class,
             false,

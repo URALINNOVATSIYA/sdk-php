@@ -8,7 +8,7 @@ use OutOfBoundsException;
 use Twin\Sdk\Collection;
 use Twin\Sdk\Entity;
 
-final class UserList extends Entity implements Collection
+class UserList extends Entity implements Collection
 {
     /**
      * @var array<int, UserListItem>

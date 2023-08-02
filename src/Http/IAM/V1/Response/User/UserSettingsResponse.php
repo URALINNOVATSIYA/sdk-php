@@ -7,7 +7,7 @@ namespace Twin\Sdk\Http\IAM\V1\Response\User;
 use Twin\Sdk\Http\IAM\V1\Response\Entity\User\UserSettings;
 use Twin\Sdk\Http\Response;
 
-final class UserSettingsResponse extends Response
+class UserSettingsResponse extends Response
 {
     public ?UserSettings $body;
 

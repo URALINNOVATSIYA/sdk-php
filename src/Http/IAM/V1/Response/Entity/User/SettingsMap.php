@@ -10,7 +10,7 @@ use OutOfBoundsException;
 use Twin\Sdk\Collection;
 use Twin\Sdk\Entity;
 
-final class SettingsMap extends Entity implements Collection
+class SettingsMap extends Entity implements Collection
 {
     /**
      * @var array<string, scalar>

@@ -7,7 +7,7 @@ namespace Twin\Sdk\Http\IAM\V1\Response\Entity\User;
 use DateTimeImmutable;
 use Twin\Sdk\Entity;
 
-final class UserListItem extends Entity
+class UserListItem extends Entity
 {
     public ?int $id = null;
     public ?int $companyId = null;

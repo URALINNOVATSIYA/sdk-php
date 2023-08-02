@@ -59,9 +59,14 @@ use Twin\Sdk\Http\Messaging\V1\Response\WhiteList\WhiteListResponse;
 
 class MessagingHttpClient extends HttpClient
 {
-    public function __construct(Authenticator $authenticator, ClientInterface $client = null)
+    final public function __construct(Authenticator $authenticator, ClientInterface $client = null)
     {
-        parent::__construct('https://notify.twin24.ai/api/v1', $authenticator, $client); // https://notify.dev.twin24.ai/api/v1
+        parent::__construct(
+            'https://notify.twin24.ai/api/v1',
+            'https://notify.dev.twin24.ai/api/v1',
+            $authenticator,
+            $client,
+        );
     }
 
     // region Bandwidth

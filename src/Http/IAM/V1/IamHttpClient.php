@@ -19,9 +19,14 @@ use Twin\Sdk\Http\Response\UploadFilesResponse;
 
 class IamHttpClient extends HttpClient
 {
-    public function __construct(Authenticator $authenticator, ClientInterface $client = null)
+    final public function __construct(Authenticator $authenticator, ClientInterface $client = null)
     {
-        parent::__construct('https://iam.twin24.ai/api/v1', $authenticator, $client); // https://iam.dev.twin24.ai/api/v1
+        parent::__construct(
+            'https://iam.twin24.ai/api/v1',
+            'https://iam.dev.twin24.ai/api/v1',
+            $authenticator,
+            $client,
+        );
     }
 
     public function getUserSettingDefinitions(): UserSettingDefinitionsResponse|PromiseInterface

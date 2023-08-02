@@ -6,7 +6,7 @@ namespace Twin\Sdk\Http\IAM\V1\Response\Entity\User;
 
 use Twin\Sdk\Entity;
 
-final class UserSettings extends Entity
+class UserSettings extends Entity
 {
     public SettingsMap $settings;
 

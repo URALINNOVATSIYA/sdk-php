@@ -15,9 +15,14 @@ use Twin\Sdk\Http\HttpClient;
 
 class BotHttpClient extends HttpClient
 {
-    public function __construct(Authenticator $authenticator, ClientInterface $client = null)
+    final public function __construct(Authenticator $authenticator, ClientInterface $client = null)
     {
-        parent::__construct('https://bot.twin24.ai/api/v1', $authenticator, $client);
+        parent::__construct(
+            'https://bot.twin24.ai/api/v1',
+            'https://bot.dev.twin24.ai/api/v1',
+            $authenticator,
+            $client,
+        );
     }
 
     public function getBotList(BotListRequest $request): BotListResponse|PromiseInterface

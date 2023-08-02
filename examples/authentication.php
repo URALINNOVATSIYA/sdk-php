@@ -4,7 +4,7 @@ use Twin\Sdk\Http\Authenticator;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$authenticator = Authenticator::fromBasic('email', 'password', 24 * 3600);
+$authenticator = Authenticator::fromBasic('smilimko@gmail.com', 'Tesserakt0', 24 * 3600);
 // $authenticator = Authenticator::fromJwt('auth token', 'refresh token', 3600);
 
 $authenticator->onTokenRefresh(function (string $authToken, string $refreshToken, DateTimeImmutable $expiredAt) {

@@ -7,7 +7,7 @@ namespace Twin\Sdk\Http\IAM\V1\Response\User;
 use Twin\Sdk\Http\IAM\V1\Response\Entity\User\UserCollection;
 use Twin\Sdk\Http\Response;
 
-final class UserListResponse extends Response
+class UserListResponse extends Response
 {
     public ?UserCollection $body;
 

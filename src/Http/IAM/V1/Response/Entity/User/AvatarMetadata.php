@@ -6,6 +6,6 @@ namespace Twin\Sdk\Http\IAM\V1\Response\Entity\User;
 
 use Twin\Sdk\Http\Response\Entity\FileMetadata;
 
-final class AvatarMetadata extends FileMetadata
+class AvatarMetadata extends FileMetadata
 {
 }

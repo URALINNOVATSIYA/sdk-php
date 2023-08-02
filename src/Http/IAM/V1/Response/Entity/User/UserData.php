@@ -6,7 +6,7 @@ namespace Twin\Sdk\Http\IAM\V1\Response\Entity\User;
 
 use Twin\Sdk\Entity;
 
-final class UserData extends Entity
+class UserData extends Entity
 {
     public int $id;
     public int $companyId;

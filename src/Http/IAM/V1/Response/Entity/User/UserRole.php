@@ -6,7 +6,7 @@ namespace Twin\Sdk\Http\IAM\V1\Response\Entity\User;
 
 use Twin\Sdk\Entity;
 
-final class UserRole extends Entity
+class UserRole extends Entity
 {
     public string $name;
     public ?int $companyId;
