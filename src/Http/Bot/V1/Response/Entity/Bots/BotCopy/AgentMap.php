@@ -8,7 +8,7 @@ use OutOfBoundsException;
 use Twin\Sdk\Collection;
 use Twin\Sdk\Entity;
 
-class AgentsMap extends Entity implements Collection
+class AgentMap extends Entity implements Collection
 {
     /**
      * @var array<string, scalar>
