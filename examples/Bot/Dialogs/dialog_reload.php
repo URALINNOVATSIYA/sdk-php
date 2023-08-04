@@ -1,15 +1,14 @@
 <?php
 
 use Twin\Sdk\Http\Bot\V1\BotHttpClient;
-use Twin\Sdk\Http\Bot\V1\Request\Dialogs\DialogReloadRequest;
 
 $authenticator = require_once __DIR__ . '/../../authentication.php';
 
 $bot = new BotHttpClient($authenticator);
 
-$data = [];
+$botId = '';
 $dialogId = '';
 
-$response = $bot->reloadDialog($dialogId, new DialogReloadRequest($data));
+$response = $bot->reloadDialog($dialogId, $botId);
 
 print_r($response->toNestedArray());

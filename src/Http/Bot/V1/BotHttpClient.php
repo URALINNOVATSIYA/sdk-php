@@ -9,7 +9,6 @@ use Twin\Sdk\Http\Bot\V1\Request\Bots\BotCopyRequest;
 use Twin\Sdk\Http\Bot\V1\Request\Bots\BotDetailsRequest;
 use Twin\Sdk\Http\Bot\V1\Request\Bots\BotListRequest;
 use Twin\Sdk\Http\Bot\V1\Request\Dialogs\DialogDebugInfoRequest;
-use Twin\Sdk\Http\Bot\V1\Request\Dialogs\DialogReloadRequest;
 use Twin\Sdk\Http\Bot\V1\Request\Dialogs\DialogStartRequest;
 use Twin\Sdk\Http\Bot\V1\Request\Dialogs\MessageSendRequest;
 use Twin\Sdk\Http\Bot\V1\Request\Facts\FactDeleteRequest;
@@ -161,14 +160,16 @@ class BotHttpClient extends HttpClient
         );
     }
 
-    public function reloadDialog(string $dialogId, DialogReloadRequest $request): DialogReloadResponse|PromiseInterface
+    public function reloadDialog(string $dialogId, string $botID): DialogReloadResponse|PromiseInterface
     {
         return $this->request(
             'POST',
             "dialogs/$dialogId/reload",
             DialogReloadResponse::class,
             true,
-            $request->toArray(true)
+            [
+                'botId' => $botID
+            ]
         );
     }
 
