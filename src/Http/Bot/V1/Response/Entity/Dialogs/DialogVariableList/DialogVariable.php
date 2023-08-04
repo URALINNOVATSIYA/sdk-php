@@ -6,14 +6,14 @@ use Twin\Sdk\Entity;
 
 class DialogVariable extends Entity
 {
-    public array $system;
-    public array $context;
+    public ?SystemMap $system = null;
+    public ?ContextMap $context = null;
 
     public function __construct(array $properties)
     {
         $this->assignProperties($properties, [
-            'system',
-            'context',
+            'system' => ['castTo' => '?' . SystemMap::class],
+            'context' => ['castTo' => '?' . ContextMap::class],
         ]);
     }
 }
