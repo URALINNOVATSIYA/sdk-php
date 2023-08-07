@@ -17,7 +17,7 @@ class SystemMap extends Entity implements Collection
 
     public function __construct(array $system)
     {
-        $this->assignMapProperty('system', $system, 'string', '?string|int');
+        $this->assignMapProperty('system', $system, 'string', 'mixed');
     }
 
     /**

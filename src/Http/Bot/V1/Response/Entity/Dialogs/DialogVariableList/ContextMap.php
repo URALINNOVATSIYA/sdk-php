@@ -17,7 +17,7 @@ class ContextMap extends Entity implements Collection
 
     public function __construct(array $context)
     {
-        $this->assignMapProperty('context', $context, 'string', '?string|int|bool');
+        $this->assignMapProperty('context', $context, 'string', 'mixed');
     }
 
     /**

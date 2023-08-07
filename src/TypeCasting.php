@@ -49,6 +49,8 @@ trait TypeCasting
                             return $value;
                         }
                         break;
+                    case 'mixed':
+                        return $value;
                     default:
                         /** @psalm-suppress ArgumentTypeCoercion */
                         if (is_a($value, $type)) {
@@ -151,14 +153,15 @@ trait TypeCasting
         $types = [];
         $nullable = false;
         foreach (explode('|', $type) as $t) {
-            if ($t[0] === '?') {
+            if ($t === 'null') {
                 $nullable = true;
-                $types[] = ltrim($t, '?');
-            } else if ($t === 'null') {
-                $nullable = true;
-            } else {
-                $types[] = $t;
+                continue;
             }
+            if ($t[0] === '?' || $t === 'mixed') {
+                $nullable = true;
+                $t = ltrim($t, '?');
+            }
+            $types[] = $t;
         }
         return $types;
     }
