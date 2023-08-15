@@ -7,11 +7,12 @@ use GuzzleHttp\Promise\PromiseInterface;
 use Twin\Sdk\Http\Authenticator;
 use Twin\Sdk\Http\Chat\V1\Request\Chats\ChatDetailsRequest;
 use Twin\Sdk\Http\Chat\V1\Request\Chats\ChatListRequest;
-use Twin\Sdk\Http\Chat\V1\Request\Chats\ChatSaveRequest;
-use Twin\Sdk\Http\Chat\V1\Response\Chats\ChatCreateResponse;
+use Twin\Sdk\Http\Chat\V1\Request\Chats\CreateChatRequest;
+use Twin\Sdk\Http\Chat\V1\Request\Chats\UpdateChatRequest;
+use Twin\Sdk\Http\Chat\V1\Response\Chats\CreateChatResponse;
 use Twin\Sdk\Http\Chat\V1\Response\Chats\ChatDetailsResponse;
 use Twin\Sdk\Http\Chat\V1\Response\Chats\ChatListResponse;
-use Twin\Sdk\Http\Chat\V1\Response\Chats\ChatUpdateResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Chats\UpdateChatResponse;
 use Twin\Sdk\Http\HttpClient;
 
 class ChatHttpClient extends HttpClient
@@ -48,24 +49,24 @@ class ChatHttpClient extends HttpClient
         );
     }
 
-    public function createChat(ChatSaveRequest $request): ChatCreateResponse|PromiseInterface
+    public function createChat(CreateChatRequest $request): CreateChatResponse|PromiseInterface
     {
         return $this->request(
             'POST',
             "chats",
-            ChatCreateResponse::class,
+            CreateChatResponse::class,
             true,
             $request->toArray(true)
         );
 
     }
 
-    public function updateChat(string $chatId, ChatSaveRequest $request): ChatUpdateResponse|PromiseInterface
+    public function updateChat(string $chatId, UpdateChatRequest $request): UpdateChatResponse|PromiseInterface
     {
         return $this->request(
             'PUT',
             "chats/$chatId",
-            ChatUpdateResponse::class,
+            UpdateChatResponse::class,
             true,
             $request->toArray(true)
         );

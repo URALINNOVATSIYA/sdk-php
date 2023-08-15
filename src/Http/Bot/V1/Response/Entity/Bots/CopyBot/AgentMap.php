@@ -1,6 +1,6 @@
 <?php
 
-namespace Twin\Sdk\Http\Chat\V1\Response\Entity\Chats;
+namespace Twin\Sdk\Http\Bot\V1\Response\Entity\Bots\CopyBot;
 
 use Generator;
 use LogicException;
@@ -8,16 +8,16 @@ use OutOfBoundsException;
 use Twin\Sdk\Collection;
 use Twin\Sdk\Entity;
 
-class ReferenceMap extends Entity implements Collection
+class AgentMap extends Entity implements Collection
 {
     /**
      * @var array<string, scalar>
      */
-    protected array $reference;
+    protected array $agents;
 
-    public function __construct(array $reference)
+    public function __construct(array $agents)
     {
-        $this->assignMapProperty('reference', $reference, 'string', 'string');
+        $this->assignMapProperty('agents', $agents, 'string', '?string');
     }
 
     /**
@@ -25,7 +25,7 @@ class ReferenceMap extends Entity implements Collection
      */
     public function toArray(bool $ignoreNulls = false): array
     {
-        return $this->reference;
+        return $this->agents;
     }
 
     /**
@@ -33,7 +33,7 @@ class ReferenceMap extends Entity implements Collection
      */
     public function toNestedArray(bool $ignoreNulls = false): array
     {
-        return $this->reference;
+        return $this->agents;
     }
 
     /**
@@ -41,31 +41,31 @@ class ReferenceMap extends Entity implements Collection
      */
     public function getIterator(): Generator
     {
-        yield from $this->reference;
+        yield from $this->agents;
     }
 
     public function count(): int
     {
-        return count($this->reference);
+        return count($this->agents);
     }
 
     public function offsetExists(mixed $offset): bool
     {
-        return isset($this->reference[(string)$offset]);
+        return isset($this->agents[(string)$offset]);
     }
 
     public function offsetGet(mixed $offset): string|int|float|bool
     {
-        return $this->reference[(string)$offset] ?? throw new OutOfBoundsException('Array index out of bounds.');
+        return $this->agents[(string)$offset] ?? throw new OutOfBoundsException('Array index out of bounds.');
     }
 
     public function offsetSet(mixed $offset, mixed $value): void
     {
-        throw new LogicException('Reference list is read only.');
+        throw new LogicException('Agents list is read only.');
     }
 
     public function offsetUnset(mixed $offset): void
     {
-        throw new LogicException('Reference list is read only.');
+        throw new LogicException('Agents list is read only.');
     }
 }

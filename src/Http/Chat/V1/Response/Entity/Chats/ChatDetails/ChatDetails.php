@@ -7,32 +7,32 @@ use Twin\Sdk\Http\Chat\V1\Response\Entity\Chats\ReferenceMap;
 
 class ChatDetails extends Entity
 {
-    public ?string $id = null;
-    public ?int $companyId = null;
-    public ?string $botId = null;
-    public ?string $botName = null;
-    public ?string $name = null;
-    public ?int $sessionTtl = null;
-    public ?string $operatorsBusyMessage = null;
-    public ?int $allowableOperatorIdleTime = null;
+    public string $id;
+    public int $companyId;
+    public string $botId;
+    public string $botName;
+    public string $name;
+    public int $sessionTtl;
+    public string $operatorsBusyMessage;
+    public int $allowableOperatorIdleTime;
     public ?string $sessionReloadBotId = null;
-    public ?bool $sessionRatingRequired = null;
-    public ?int $sessionRatingTriggerTime = null;
-    public ?bool $answerOnFirstClientMessage = null;
+    public bool $sessionRatingRequired;
+    public int $sessionRatingTriggerTime;
+    public bool $answerOnFirstClientMessage;
     public ?string $eventCallbackUrl = null;
-    public ?string $eventCallbackData = null;
-    public ?array $notifyOnEvents = null;
+    public ?string $eventCallbackData  = null;
+    public array $notifyOnEvents;
     public ?string $fcmServerKey = null;
     public ?string $fcmServiceUrl = null;
     public ?string $knowledgeBase = null;
-    public ?array $pushData = null;
-    public ?array $messengers = null;
-    public ?ReferenceMap $references = null;
-    public ?array $form = null;
-    public ?array $appearance = null;
-    public ?array $results = null;
-    public ?int $timerFirstAnswer = null;
-    public ?int $timerNextAnswers = null;
+    public array $pushData;
+    public array $messengers;
+    public ReferenceMap $references;
+    public array $form;
+    public array $appearance;
+    public array $results;
+    public int $timerFirstAnswer;
+    public int $timerNextAnswers;
 
     public function __construct(array $properties)
     {
