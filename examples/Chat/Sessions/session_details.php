@@ -6,8 +6,8 @@ $authenticator = require_once __DIR__ . '/../../authentication.php';
 
 $chat = new ChatHttpClient($authenticator);
 
-$chatId = '';
+$sessionId = '';
 
-$response = $chat->getChatDetails($chatId);
+$response = $chat->getSessionDetails($sessionId);
 
 print_r($response->toNestedArray());
