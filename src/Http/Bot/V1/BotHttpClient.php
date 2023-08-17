@@ -5,29 +5,29 @@ namespace Twin\Sdk\Http\Bot\V1;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Promise\PromiseInterface;
 use Twin\Sdk\Http\Authenticator;
-use Twin\Sdk\Http\Bot\V1\Request\Bots\BotCopyRequest;
+use Twin\Sdk\Http\Bot\V1\Request\Bots\CopyBotRequest;
 use Twin\Sdk\Http\Bot\V1\Request\Bots\BotDetailsRequest;
 use Twin\Sdk\Http\Bot\V1\Request\Bots\BotListRequest;
 use Twin\Sdk\Http\Bot\V1\Request\Dialogs\DialogDebugInfoRequest;
-use Twin\Sdk\Http\Bot\V1\Request\Dialogs\DialogStartRequest;
-use Twin\Sdk\Http\Bot\V1\Request\Dialogs\MessageSendRequest;
-use Twin\Sdk\Http\Bot\V1\Request\Facts\FactDeleteRequest;
+use Twin\Sdk\Http\Bot\V1\Request\Dialogs\StartDialogRequest;
+use Twin\Sdk\Http\Bot\V1\Request\Dialogs\SendMessageRequest;
+use Twin\Sdk\Http\Bot\V1\Request\Facts\DeleteFactRequest;
 use Twin\Sdk\Http\Bot\V1\Request\Facts\FactListRequest;
-use Twin\Sdk\Http\Bot\V1\Request\Facts\FactSaveRequest;
-use Twin\Sdk\Http\Bot\V1\Response\Bots\BotCopyResponse;
-use Twin\Sdk\Http\Bot\V1\Response\Bots\BotDeleteResponse;
+use Twin\Sdk\Http\Bot\V1\Request\Facts\SaveFactRequest;
+use Twin\Sdk\Http\Bot\V1\Response\Bots\CopyBotResponse;
+use Twin\Sdk\Http\Bot\V1\Response\Bots\DeleteBotResponse;
 use Twin\Sdk\Http\Bot\V1\Response\Bots\BotDetailsResponse;
 use Twin\Sdk\Http\Bot\V1\Response\Bots\BotListResponse;
-use Twin\Sdk\Http\Bot\V1\Response\Bots\BotRecoverResponse;
+use Twin\Sdk\Http\Bot\V1\Response\Bots\RecoverBotResponse;
 use Twin\Sdk\Http\Bot\V1\Response\Dialogs\DialogDebugInfoResponse;
-use Twin\Sdk\Http\Bot\V1\Response\Dialogs\DialogFinishResponse;
-use Twin\Sdk\Http\Bot\V1\Response\Dialogs\DialogReloadResponse;
-use Twin\Sdk\Http\Bot\V1\Response\Dialogs\DialogStartResponse;
+use Twin\Sdk\Http\Bot\V1\Response\Dialogs\FinishDialogResponse;
+use Twin\Sdk\Http\Bot\V1\Response\Dialogs\ReloadDialogResponse;
+use Twin\Sdk\Http\Bot\V1\Response\Dialogs\StartDialogResponse;
 use Twin\Sdk\Http\Bot\V1\Response\Dialogs\DialogVariableListResponse;
-use Twin\Sdk\Http\Bot\V1\Response\Dialogs\MessageSendResponse;
-use Twin\Sdk\Http\Bot\V1\Response\Facts\FactDeleteResponse;
+use Twin\Sdk\Http\Bot\V1\Response\Dialogs\SendMessageResponse;
+use Twin\Sdk\Http\Bot\V1\Response\Facts\DeleteFactResponse;
 use Twin\Sdk\Http\Bot\V1\Response\Facts\FactListResponse;
-use Twin\Sdk\Http\Bot\V1\Response\Facts\FactSaveResponse;
+use Twin\Sdk\Http\Bot\V1\Response\Facts\SaveFactResponse;
 use Twin\Sdk\Http\HttpClient;
 
 class BotHttpClient extends HttpClient
@@ -64,32 +64,32 @@ class BotHttpClient extends HttpClient
         );
     }
 
-    public function deleteBot(string $botId): BotDeleteResponse|PromiseInterface
+    public function deleteBot(string $botId): DeleteBotResponse|PromiseInterface
     {
         return $this->request(
             'DELETE',
             "bots/$botId",
-            BotDeleteResponse::class,
+            DeleteBotResponse::class,
             true
         );
     }
 
-    public function recoverBot(string $botId): BotRecoverResponse|PromiseInterface
+    public function recoverBot(string $botId): RecoverBotResponse|PromiseInterface
     {
         return $this->request(
             'PUT',
             "bots/$botId/recover",
-            BotRecoverResponse::class,
+            RecoverBotResponse::class,
             true
         );
     }
 
-    public function copyBot(string $botId, BotCopyRequest $request): BotCopyResponse|PromiseInterface
+    public function copyBot(string $botId, CopyBotRequest $request): CopyBotResponse|PromiseInterface
     {
         return $this->request(
             'POST',
             "bots/$botId/copy",
-            BotCopyResponse::class,
+            CopyBotResponse::class,
             true,
             $request->toArray(true)
         );
@@ -106,66 +106,66 @@ class BotHttpClient extends HttpClient
         );
     }
 
-    public function saveFact(FactSaveRequest $request): FactSaveResponse|PromiseInterface
+    public function saveFact(SaveFactRequest $request): SaveFactResponse|PromiseInterface
     {
         return $this->request(
             'PUT',
             'facts',
-            FactSaveResponse::class,
+            SaveFactResponse::class,
             true,
             $request->toArray(true)
         );
     }
 
-    public function deleteFact(string $factId, FactDeleteRequest $request): FactDeleteResponse|PromiseInterface
+    public function deleteFact(string $factId, DeleteFactRequest $request): DeleteFactResponse|PromiseInterface
     {
         return $this->request(
             'DELETE',
             "facts/$factId",
-            FactDeleteResponse::class,
+            DeleteFactResponse::class,
             true,
             $request->toArray(true)
         );
     }
 
-    public function startDialog(DialogStartRequest $request): DialogStartResponse|PromiseInterface
+    public function startDialog(StartDialogRequest $request): StartDialogResponse|PromiseInterface
     {
         return $this->request(
             'POST',
             "dialogs",
-            DialogStartResponse::class,
+            StartDialogResponse::class,
             true,
             $request->toArray(true)
         );
     }
 
-    public function sendMessage(string $dialogId, MessageSendRequest $request): MessageSendResponse|PromiseInterface
+    public function sendMessage(string $dialogId, SendMessageRequest $request): SendMessageResponse|PromiseInterface
     {
         return $this->request(
             'POST',
             "dialogs/$dialogId",
-            MessageSendResponse::class,
+            SendMessageResponse::class,
             true,
             $request->toArray(true)
         );
     }
 
-    public function finishDialog(string $dialogId): DialogFinishResponse|PromiseInterface
+    public function finishDialog(string $dialogId): FinishDialogResponse|PromiseInterface
     {
         return $this->request(
             'POST',
             "dialogs/$dialogId/finish",
-            DialogFinishResponse::class,
+            FinishDialogResponse::class,
             true
         );
     }
 
-    public function reloadDialog(string $dialogId, string $botID): DialogReloadResponse|PromiseInterface
+    public function reloadDialog(string $dialogId, string $botID): ReloadDialogResponse|PromiseInterface
     {
         return $this->request(
             'POST',
             "dialogs/$dialogId/reload",
-            DialogReloadResponse::class,
+            ReloadDialogResponse::class,
             true,
             [
                 'botId' => $botID
