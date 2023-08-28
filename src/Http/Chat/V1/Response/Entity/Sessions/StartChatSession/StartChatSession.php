@@ -8,6 +8,7 @@ use Twin\Sdk\Entity;
 class StartChatSession extends Entity
 {
     public ?string $id = null;
+    public ?string $messageId = null;
     public ?string $clientId = null;
     public ?DateTimeImmutable $startedAt = null;
     public ?int $ttl = null;

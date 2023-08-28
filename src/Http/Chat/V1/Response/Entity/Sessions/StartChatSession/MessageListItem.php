@@ -6,9 +6,12 @@ use Twin\Sdk\Entity;
 
 class MessageListItem extends Entity
 {
+    public ?string $authorId = null;
+    public ?string $authorType = null;
     public ?string $body = null;
-    public ?array $answers = null;
     public ?ActionMap $actions = null;
+    public ?array $answers = null;
+    public ?array $keyboard = null;
     public ?AttachmentList $attachments = null;
 
     public function __construct(array $properties)

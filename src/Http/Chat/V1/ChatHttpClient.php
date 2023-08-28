@@ -8,6 +8,8 @@ use Twin\Sdk\Http\Authenticator;
 use Twin\Sdk\Http\Chat\V1\Request\Chats\ChatListRequest;
 use Twin\Sdk\Http\Chat\V1\Request\Chats\CreateChatRequest;
 use Twin\Sdk\Http\Chat\V1\Request\Chats\UpdateChatRequest;
+use Twin\Sdk\Http\Chat\V1\Request\Sessions\SessionDeleteRequest;
+use Twin\Sdk\Http\Chat\V1\Request\Sessions\SessionDetailsRequest;
 use Twin\Sdk\Http\Chat\V1\Request\Sessions\SessionListRequest;
 use Twin\Sdk\Http\Chat\V1\Request\Sessions\StartChatSessionRequest;
 use Twin\Sdk\Http\Chat\V1\Response\Chats\CreateChatResponse;
@@ -99,13 +101,17 @@ class ChatHttpClient extends HttpClient
         );
     }
 
-    public function getSessionDetails(string $sessionId): SessionDetailsResponse|PromiseInterface
+    public function getSessionDetails(
+        string $sessionId,
+        SessionDetailsRequest $request
+    ): SessionDetailsResponse|PromiseInterface
     {
         return $this->request(
             'GET',
             "sessions/$sessionId",
             SessionDetailsResponse::class,
-            true
+            true,
+            $request->toArray(true)
         );
     }
 
@@ -137,13 +143,17 @@ class ChatHttpClient extends HttpClient
         );
     }
 
-    public function deleteSession(string $sessionId): DeleteSessionResponse|PromiseInterface
+    public function deleteSession(
+        string $sessionId,
+        SessionDeleteRequest $request
+    ): DeleteSessionResponse|PromiseInterface
     {
         return $this->request(
             'DELETE',
             "sessions/$sessionId",
             DeleteSessionResponse::class,
-            true
+            true,
+            $request->toArray(true)
         );
     }
 }
