@@ -8,7 +8,7 @@ use Twin\Sdk\Http\Authenticator;
 use Twin\Sdk\Http\Chat\V1\Request\Chats\ChatListRequest;
 use Twin\Sdk\Http\Chat\V1\Request\Chats\CreateChatRequest;
 use Twin\Sdk\Http\Chat\V1\Request\Chats\UpdateChatRequest;
-use Twin\Sdk\Http\Chat\V1\Request\Sessions\SessionDeleteRequest;
+use Twin\Sdk\Http\Chat\V1\Request\Sessions\DeleteSessionRequest;
 use Twin\Sdk\Http\Chat\V1\Request\Sessions\SessionDetailsRequest;
 use Twin\Sdk\Http\Chat\V1\Request\Sessions\SessionListRequest;
 use Twin\Sdk\Http\Chat\V1\Request\Sessions\StartChatSessionRequest;
@@ -17,11 +17,16 @@ use Twin\Sdk\Http\Chat\V1\Response\Chats\ChatDetailsResponse;
 use Twin\Sdk\Http\Chat\V1\Response\Chats\ChatListResponse;
 use Twin\Sdk\Http\Chat\V1\Response\Chats\DeleteChatResponse;
 use Twin\Sdk\Http\Chat\V1\Response\Chats\UpdateChatResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Sessions\AddSessionOperatorResponse;
 use Twin\Sdk\Http\Chat\V1\Response\Sessions\ContinueChatSessionResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Sessions\DeleteSessionOperatorResponse;
 use Twin\Sdk\Http\Chat\V1\Response\Sessions\DeleteSessionResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Sessions\MarkSessionSpamResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Sessions\RenameChatSessionResponse;
 use Twin\Sdk\Http\Chat\V1\Response\Sessions\SessionDetailsResponse;
 use Twin\Sdk\Http\Chat\V1\Response\Sessions\SessionListResponse;
 use Twin\Sdk\Http\Chat\V1\Response\Sessions\StartChatSessionResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Sessions\SwitchSessionOperatorResponse;
 use Twin\Sdk\Http\HttpClient;
 
 class ChatHttpClient extends HttpClient
@@ -145,7 +150,7 @@ class ChatHttpClient extends HttpClient
 
     public function deleteSession(
         string $sessionId,
-        SessionDeleteRequest $request
+        DeleteSessionRequest $request
     ): DeleteSessionResponse|PromiseInterface
     {
         return $this->request(
@@ -154,6 +159,91 @@ class ChatHttpClient extends HttpClient
             DeleteSessionResponse::class,
             true,
             $request->toArray(true)
+        );
+    }
+
+    public function renameChatSession(
+        string $sessionId,
+        string $newSessionName
+    ): RenameChatSessionResponse|PromiseInterface
+    {
+        return $this->request(
+            'PATCH',
+            "sessions/$sessionId/names/$newSessionName",
+            RenameChatSessionResponse::class,
+            true
+        );
+    }
+
+    public function switchSessionOperator(
+        string $sessionId,
+        string $operatorId
+    ): SwitchSessionOperatorResponse|PromiseInterface
+    {
+        return $this->request(
+            'PATCH',
+            "sessions/$sessionId/operators/$operatorId",
+            SwitchSessionOperatorResponse::class,
+            true
+        );
+    }
+
+    public function addSessionOperator(
+        string $sessionId,
+        string $operatorId
+    ): AddSessionOperatorResponse|PromiseInterface
+    {
+        return $this->request(
+            'PUT',
+            "sessions/$sessionId/operators/$operatorId",
+            AddSessionOperatorResponse::class,
+            true
+        );
+    }
+
+    public function deleteSessionOperator(
+        string $sessionId,
+        string $operatorId
+    ): DeleteSessionOperatorResponse|PromiseInterface
+    {
+        return $this->request(
+            'DELETE',
+            "sessions/$sessionId/operators/$operatorId",
+            DeleteSessionOperatorResponse::class,
+            true
+        );
+    }
+
+    public function switchSessionGroupOperators(
+        string $sessionId,
+        string $groupId
+    ): SwitchSessionOperatorResponse|PromiseInterface
+    {
+        return $this->request(
+            'PATCH',
+            "sessions/$sessionId/groupoperators/$groupId",
+            SwitchSessionOperatorResponse::class,
+            true
+        );
+    }
+
+    public function markSessionSpam(string $sessionId): MarkSessionSpamResponse|PromiseInterface
+    {
+        return $this->request(
+            'PATCH',
+            "sessions/$sessionId/spam",
+            MarkSessionSpamResponse::class,
+            true
+        );
+    }
+
+    public function markSessionNotSpam(string $sessionId): MarkSessionSpamResponse|PromiseInterface
+    {
+        return $this->request(
+            'PATCH',
+            "sessions/$sessionId/notSpam",
+            MarkSessionSpamResponse::class,
+            true
         );
     }
 }

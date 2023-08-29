@@ -26,7 +26,7 @@ class SessionInfo extends Entity
     public ?int $unreadClientMessageCount = null;
     public ?DateTimeImmutable $lastMessageCreatedAt = null;
     public ?array $lastMessage = null;
-    public ?string $clientId = null;
+    public mixed $clientId = null;
     public ?bool $clientBanned = null;
     public ?string $referer = null;
     public ?string $tags = null;

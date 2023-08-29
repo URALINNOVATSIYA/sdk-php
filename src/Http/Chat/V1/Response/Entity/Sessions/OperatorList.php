@@ -15,13 +15,17 @@ class OperatorList extends Entity implements Collection
      */
     protected array $operators;
 
-    public function __construct(array $operators)
+    public function __construct(array|string $operators)
     {
+        if (is_string($operators)) {
+            $operators = json_decode($operators, true);
+        }
+
         $this->assignListProperty('operators', $operators, OperatorListItem::class);
     }
 
     /**
-     * @return array<int, SessionListItem>
+     * @return array<int, OperatorListItem>
      */
     public function toArray(bool $ignoreNulls = false): array
     {

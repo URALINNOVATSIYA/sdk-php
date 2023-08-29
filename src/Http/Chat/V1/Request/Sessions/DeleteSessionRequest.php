@@ -4,7 +4,7 @@ namespace Twin\Sdk\Http\Chat\V1\Request\Sessions;
 
 use Twin\Sdk\Http\Request;
 
-class SessionDeleteRequest extends Request
+class DeleteSessionRequest extends Request
 {
     public ?string $result = null;
 
