@@ -21,6 +21,7 @@ use Twin\Sdk\Http\Chat\V1\Response\Sessions\AddSessionOperatorResponse;
 use Twin\Sdk\Http\Chat\V1\Response\Sessions\ContinueChatSessionResponse;
 use Twin\Sdk\Http\Chat\V1\Response\Sessions\DeleteSessionOperatorResponse;
 use Twin\Sdk\Http\Chat\V1\Response\Sessions\DeleteSessionResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Sessions\MarkSessionNotSpamResponse;
 use Twin\Sdk\Http\Chat\V1\Response\Sessions\MarkSessionSpamResponse;
 use Twin\Sdk\Http\Chat\V1\Response\Sessions\RenameChatSessionResponse;
 use Twin\Sdk\Http\Chat\V1\Response\Sessions\SessionDetailsResponse;
@@ -237,12 +238,12 @@ class ChatHttpClient extends HttpClient
         );
     }
 
-    public function markSessionNotSpam(string $sessionId): MarkSessionSpamResponse|PromiseInterface
+    public function markSessionNotSpam(string $sessionId): MarkSessionNotSpamResponse|PromiseInterface
     {
         return $this->request(
             'PATCH',
             "sessions/$sessionId/notSpam",
-            MarkSessionSpamResponse::class,
+            MarkSessionNotSpamResponse::class,
             true
         );
     }
