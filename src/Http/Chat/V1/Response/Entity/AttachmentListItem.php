@@ -1,6 +1,6 @@
 <?php
 
-namespace Twin\Sdk\Http\Chat\V1\Response\Entity\Sessions\StartChatSession;
+namespace Twin\Sdk\Http\Chat\V1\Response\Entity;
 
 use DateTimeImmutable;
 use Twin\Sdk\Entity;
