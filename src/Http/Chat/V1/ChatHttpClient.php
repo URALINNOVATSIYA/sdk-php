@@ -5,14 +5,38 @@ namespace Twin\Sdk\Http\Chat\V1;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Promise\PromiseInterface;
 use Twin\Sdk\Http\Authenticator;
-use Twin\Sdk\Http\Chat\V1\Request\Chats\ChatDetailsRequest;
 use Twin\Sdk\Http\Chat\V1\Request\Chats\ChatListRequest;
 use Twin\Sdk\Http\Chat\V1\Request\Chats\CreateChatRequest;
 use Twin\Sdk\Http\Chat\V1\Request\Chats\UpdateChatRequest;
+use Twin\Sdk\Http\Chat\V1\Request\Messages\ClientMessageListRequest;
+use Twin\Sdk\Http\Chat\V1\Request\Messages\CreateClientChatMessageRequest;
+use Twin\Sdk\Http\Chat\V1\Request\Messages\CreateOperatorChatMessageRequest;
+use Twin\Sdk\Http\Chat\V1\Request\Messages\SessionMessageListRequest;
+use Twin\Sdk\Http\Chat\V1\Request\Sessions\DeleteSessionRequest;
+use Twin\Sdk\Http\Chat\V1\Request\Sessions\SessionDetailsRequest;
+use Twin\Sdk\Http\Chat\V1\Request\Sessions\SessionListRequest;
+use Twin\Sdk\Http\Chat\V1\Request\Sessions\StartChatSessionRequest;
 use Twin\Sdk\Http\Chat\V1\Response\Chats\CreateChatResponse;
 use Twin\Sdk\Http\Chat\V1\Response\Chats\ChatDetailsResponse;
 use Twin\Sdk\Http\Chat\V1\Response\Chats\ChatListResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Chats\DeleteChatResponse;
 use Twin\Sdk\Http\Chat\V1\Response\Chats\UpdateChatResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Messages\ClientMessageListResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Messages\CreateClientChatMessageResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Messages\CreateOperatorChatMessageResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Messages\MarkMessageAsReadResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Messages\SessionMessageListResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Sessions\AddSessionOperatorResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Sessions\ContinueChatSessionResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Sessions\DeleteSessionOperatorResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Sessions\DeleteSessionResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Sessions\MarkSessionNotSpamResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Sessions\MarkSessionSpamResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Sessions\RenameChatSessionResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Sessions\SessionDetailsResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Sessions\SessionListResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Sessions\StartChatSessionResponse;
+use Twin\Sdk\Http\Chat\V1\Response\Sessions\SwitchSessionOperatorResponse;
 use Twin\Sdk\Http\HttpClient;
 
 class ChatHttpClient extends HttpClient
@@ -38,14 +62,13 @@ class ChatHttpClient extends HttpClient
         );
     }
 
-    public function getChatDetails(string $chatId, ChatDetailsRequest $request): ChatDetailsResponse|PromiseInterface
+    public function getChatDetails(string $chatId): ChatDetailsResponse|PromiseInterface
     {
         return $this->request(
             'GET',
             "chats/$chatId",
             ChatDetailsResponse::class,
-            true,
-            $request->toArray(true)
+            true
         );
     }
 
@@ -67,6 +90,236 @@ class ChatHttpClient extends HttpClient
             'PUT',
             "chats/$chatId",
             UpdateChatResponse::class,
+            true,
+            $request->toArray(true)
+        );
+    }
+
+    public function deleteChat(string $chatId): DeleteChatResponse|PromiseInterface
+    {
+        return $this->request(
+            'DELETE',
+            "chats/$chatId",
+            DeleteChatResponse::class,
+            true
+        );
+    }
+
+    public function getSessionList(SessionListRequest $request): SessionListResponse|PromiseInterface
+    {
+        return $this->request(
+            'GET',
+            "sessions",
+            SessionListResponse::class,
+            true,
+            $request->toArray(true)
+        );
+    }
+
+    public function getSessionDetails(
+        string $sessionId,
+        SessionDetailsRequest $request
+    ): SessionDetailsResponse|PromiseInterface
+    {
+        return $this->request(
+            'GET',
+            "sessions/$sessionId",
+            SessionDetailsResponse::class,
+            true,
+            $request->toArray(true)
+        );
+    }
+
+    public function startChatSession(
+        string $chatId,
+        StartChatSessionRequest $request
+    ): StartChatSessionResponse|PromiseInterface
+    {
+        return $this->request(
+            'POST',
+            "chats/$chatId/sessions",
+            StartChatSessionResponse::class,
+            true,
+            $request->toArray(true)
+        );
+    }
+
+    public function continueChatSession(
+        string $chatId,
+        StartChatSessionRequest $request
+    ): ContinueChatSessionResponse|PromiseInterface
+    {
+        return $this->request(
+            'PUT',
+            "chats/$chatId/sessions",
+            ContinueChatSessionResponse::class,
+            true,
+            $request->toArray(true)
+        );
+    }
+
+    public function deleteSession(
+        string $sessionId,
+        DeleteSessionRequest $request
+    ): DeleteSessionResponse|PromiseInterface
+    {
+        return $this->request(
+            'DELETE',
+            "sessions/$sessionId",
+            DeleteSessionResponse::class,
+            true,
+            $request->toArray(true)
+        );
+    }
+
+    public function renameChatSession(
+        string $sessionId,
+        string $newSessionName
+    ): RenameChatSessionResponse|PromiseInterface
+    {
+        return $this->request(
+            'PATCH',
+            "sessions/$sessionId/names/$newSessionName",
+            RenameChatSessionResponse::class,
+            true
+        );
+    }
+
+    public function switchSessionOperator(
+        string $sessionId,
+        string $operatorId
+    ): SwitchSessionOperatorResponse|PromiseInterface
+    {
+        return $this->request(
+            'PATCH',
+            "sessions/$sessionId/operators/$operatorId",
+            SwitchSessionOperatorResponse::class,
+            true
+        );
+    }
+
+    public function addSessionOperator(
+        string $sessionId,
+        string $operatorId
+    ): AddSessionOperatorResponse|PromiseInterface
+    {
+        return $this->request(
+            'PUT',
+            "sessions/$sessionId/operators/$operatorId",
+            AddSessionOperatorResponse::class,
+            true
+        );
+    }
+
+    public function deleteSessionOperator(
+        string $sessionId,
+        string $operatorId
+    ): DeleteSessionOperatorResponse|PromiseInterface
+    {
+        return $this->request(
+            'DELETE',
+            "sessions/$sessionId/operators/$operatorId",
+            DeleteSessionOperatorResponse::class,
+            true
+        );
+    }
+
+    public function switchSessionGroupOperators(
+        string $sessionId,
+        string $groupId
+    ): SwitchSessionOperatorResponse|PromiseInterface
+    {
+        return $this->request(
+            'PATCH',
+            "sessions/$sessionId/groupoperators/$groupId",
+            SwitchSessionOperatorResponse::class,
+            true
+        );
+    }
+
+    public function markSessionSpam(string $sessionId): MarkSessionSpamResponse|PromiseInterface
+    {
+        return $this->request(
+            'PATCH',
+            "sessions/$sessionId/spam",
+            MarkSessionSpamResponse::class,
+            true
+        );
+    }
+
+    public function markSessionNotSpam(string $sessionId): MarkSessionNotSpamResponse|PromiseInterface
+    {
+        return $this->request(
+            'PATCH',
+            "sessions/$sessionId/notSpam",
+            MarkSessionNotSpamResponse::class,
+            true
+        );
+    }
+
+    public function getSessionMessageList(
+        string $sessionId,
+        SessionMessageListRequest $request
+    ): SessionMessageListResponse|PromiseInterface
+    {
+        return $this->request(
+            'GET',
+            "sessions/$sessionId/messages",
+            SessionMessageListResponse::class,
+            true,
+            $request->toArray(true)
+        );
+    }
+
+    public function createClientChatMessage(
+        string $sessionId,
+        CreateClientChatMessageRequest $request
+    ): CreateClientChatMessageResponse|PromiseInterface
+    {
+        return $this->request(
+            'POST',
+            "sessions/$sessionId/clients/messages",
+            CreateClientChatMessageResponse::class,
+            true,
+            $request->toArray(true)
+        );
+    }
+
+    public function createOperatorChatMessage(
+        string $sessionId,
+        CreateOperatorChatMessageRequest $request
+    ): CreateOperatorChatMessageResponse|PromiseInterface
+    {
+        return $this->request(
+            'POST',
+            "sessions/$sessionId/clients/messages",
+            CreateOperatorChatMessageResponse::class,
+            true,
+            $request->toArray(true)
+        );
+    }
+
+    public function markMessageAsRead(
+        string $messageId
+    ): MarkMessageAsReadResponse|PromiseInterface
+    {
+        return $this->request(
+            'PATCH',
+            "messages/$messageId/read",
+            MarkMessageAsReadResponse::class,
+            true
+        );
+    }
+
+    public function getClientMessageList(
+        string $clientId,
+        ClientMessageListRequest $request
+    ): ClientMessageListResponse|PromiseInterface
+    {
+        return $this->request(
+            'GET',
+            "clients/$clientId/messages",
+            ClientMessageListResponse::class,
             true,
             $request->toArray(true)
         );

@@ -8,6 +8,6 @@ $chat = new ChatHttpClient($authenticator);
 
 $chatId = '';
 
-$response = $chat->getChatDetails($chatId);
+$response = $chat->deleteChat($chatId);
 
 print_r($response->toNestedArray());
